@@ -1,0 +1,58 @@
+name: ci
+on:
+  push: {branches: [main]}
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: {python: ["3.10", "3.11", "3.12", "3.13", "3.14"]}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ matrix.python }}"}
+      - run: pip install -e ".[dev,yaml,otel]"
+      - run: ruff check riskgate tests examples/*.py examples/use_cases examples/integrations benchmarks
+      - run: mypy riskgate
+      - run: pytest -q tests --ignore=tests/contract
+      - run: pytest -q benchmarks/tests          # harness == Gate.calibrate(groups=...); data-dependent tests skip
+  contract:
+    # adapter contract tests against pinned framework versions (fake models; no network calls to LLMs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -e ".[dev,mcp,langgraph,adk,openai-agents]"
+      - run: pytest -q tests/contract
+      - run: |
+          for f in langgraph_agent adk_agent openai_agents_agent mcp_proxy_demo; do
+            python examples/integrations/$f.py
+          done
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -e ".[dev]"
+      - run: cd examples && PYTHONPATH=.. python quickstart.py
+      - run: cd examples && PYTHONPATH=.. python end_to_end_sre.py --quick
+      - run: cd examples && PYTHONPATH=.. python run_examples.py --quick --only refunds_agent
+      - run: cd examples/use_cases && for f in *.py; do PYTHONPATH=../.. python $f; done
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install -e ".[docs]"
+      - run: mkdocs build --strict
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install build twine && python -m build && twine check dist/*

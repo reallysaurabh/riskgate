@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiskGate — Interactive Visual Explainer &amp; Animated Domain Examples</title>
+  <meta name="description" content="Minimal interactive animations explaining RiskGate: hypothesis-robust, conformal risk-controlled verification of LLM-agent actions across CSTR chemical reactors, Kubernetes SRE, and FinTech refund agents.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <!-- Top Header -->
+    <header class="site-header">
+      <div>
+        <div class="brand-eyebrow">RISKGATE · HYPOTHESIS-ROBUST CONFORMAL VERIFICATION</div>
+        <h1>Certify, Reject, Probe, or Ask — Visualized</h1>
+        <p class="header-subtitle">
+          How an independent checker verifies LLM-agent actions across competing world hypotheses with a finite-sample safety guarantee (<code>P(certified ∧ unsafe) ≤ α</code>).
+        </p>
+      </div>
+      <div class="mode-toggle-group" role="group" aria-label="Explanation mode">
+        <button id="mode-eli5" class="mode-btn active" type="button">Plain English (ELI5)</button>
+        <button id="mode-math" class="mode-btn" type="button">Formal Math (CRC)</button>
+      </div>
+    </header>
+
+    <!-- 4 Scenario Selector Tabs -->
+    <nav id="scenario-nav" class="scenario-nav" aria-label="Domain examples"></nav>
+
+    <!-- Playback Transport & 4-Stage Stepper -->
+    <section class="transport-bar" aria-label="Animation playback controls">
+      <div class="playback-controls">
+        <button id="btn-prev" class="ctrl-btn" type="button" title="Previous step">◀ Step</button>
+        <button id="btn-play-pause" class="ctrl-btn primary" type="button">❚❚ Pause</button>
+        <button id="btn-next" class="ctrl-btn" type="button" title="Next step">Step ▶</button>
+      </div>
+      <div class="stage-stepper">
+        <button id="pill-stage-0" class="stage-pill active" data-stage="0" type="button">
+          <span class="step-num">01</span>
+          <span class="step-label">1. Observe</span>
+        </button>
+        <button id="pill-stage-1" class="stage-pill" data-stage="1" type="button">
+          <span class="step-num">02</span>
+          <span class="step-label">2. Plausible Set Ĥ_τ</span>
+        </button>
+        <button id="pill-stage-2" class="stage-pill" data-stage="2" type="button">
+          <span class="step-num">03</span>
+          <span class="step-label">3. Check Candidates</span>
+        </button>
+        <button id="pill-stage-3" class="stage-pill" data-stage="3" type="button">
+          <span class="step-num">04</span>
+          <span class="step-label">4. Verdict / Probe</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Interactive Stage -->
+    <section class="stage-grid">
+      <!-- Left: Animated Trajectory / Risk Curve Canvas + Narrative -->
+      <div class="card">
+        <div class="card-header">
+          <span id="canvas-title" class="card-title">CSTR Exothermic Reactor — Live Simulation</span>
+          <span id="canvas-meta" class="card-meta">α = 5.0% · Tube = 0.96 K</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="stage-canvas"></canvas>
+        </div>
+        <div class="narrative-banner">
+          <div id="narrative-title" class="narrative-step-title"></div>
+          <p id="narrative-body" class="narrative-body"></p>
+        </div>
+      </div>
+
+      <!-- Right: Plausible Hypothesis Set + Ranked Candidate Walk-Down + Live Verdict -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Gate State · Hypotheses &amp; Ranked Walk-Down</span>
+          <span class="card-meta">s(a) = min_{h ∈ Ĥ_τ} m(a, h)</span>
+        </div>
+
+        <div class="section-label">Plausible World Hypotheses Ĥ_τ(x)</div>
+        <div id="hyp-list" class="hyp-list"></div>
+
+        <div class="section-label">Agent Ranked Proposals &amp; Worst-Case Margins</div>
+        <div id="cand-list" class="cand-list"></div>
+
+        <div id="verdict-box" class="verdict-box ask">
+          <div class="verdict-header">
+            <span id="verdict-title">VERDICT</span>
+          </div>
+          <div id="verdict-reason" class="verdict-reason"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Self-Contained Looping SVG Diagrams (Embeddable in README / Slides) -->
+    <section class="gallery-section">
+      <div class="gallery-header">
+        <h2 class="gallery-title">Embeddable Looping Diagrams (Pure CSS-Animated SVGs)</h2>
+        <p class="gallery-subtitle">
+          Each diagram below is a standalone, zero-dependency <code>.svg</code> file in <code>riskgate/examples/animations/</code> that loops automatically in any browser, GitHub README, or presentation deck.
+        </p>
+      </div>
+      <div class="svg-grid">
+        <div class="svg-card">
+          <img src="1_pipeline_concept.svg" alt="Animated RiskGate 4-verdict verification pipeline">
+        </div>
+        <div class="svg-card">
+          <img src="2_cstr_reactor_probe.svg" alt="Animated CSTR exothermic reactor active diagnostic probing">
+        </div>
+        <div class="svg-card">
+          <img src="3_k8s_sre_walkdown.svg" alt="Animated Kubernetes SRE incident ranked candidate walk-down">
+        </div>
+        <div class="svg-card">
+          <img src="4_refunds_multirisk.svg" alt="Animated Refund Agent multi-risk calibration and Proposition 1 comparison">
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

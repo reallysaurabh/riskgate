@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 390" width="100%" height="100%">
+  
+  <style>
+    .bg { fill: #FAF9F5; }
+    .panel { fill: #FFFFFF; stroke: #E4E2DD; stroke-width: 1.2; }
+    .panel-subtle { fill: #F4F2EC; stroke: #E4E2DD; stroke-width: 1; }
+    .ink { fill: #18181B; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .muted { fill: #686662; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; fill: #18181B; }
+    .mono-muted { font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; fill: #686662; }
+    .title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+    .subtitle { font-size: 11.5px; font-weight: 400; }
+    .label { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .small { font-size: 11px; }
+    .tiny { font-size: 10px; }
+    .axis { stroke: #D4D1C8; stroke-width: 1; }
+    .grid { stroke: #ECEAE3; stroke-width: 1; stroke-dasharray: 3 3; }
+    .limit-line { stroke: #B91C1C; stroke-width: 1.4; stroke-dasharray: 5 4; }
+    .thresh-line { stroke: #18181B; stroke-width: 1.4; stroke-dasharray: 4 3; }
+    .safe-fill { fill: #15803D; fill-opacity: 0.06; }
+    .danger-fill { fill: #B91C1C; fill-opacity: 0.07; }
+
+    /* Animated stages over a 10s loop */
+    @keyframes fadeStage1 {
+      0%, 5% { opacity: 0.25; }
+      10%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.25; }
+    }
+    @keyframes fadeStage2 {
+      0%, 22% { opacity: 0.15; }
+      28%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.15; }
+    }
+    @keyframes fadeStage3 {
+      0%, 44% { opacity: 0.12; }
+      52%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.12; }
+    }
+    @keyframes fadeStage4 {
+      0%, 66% { opacity: 0.1; transform: translateY(2px); }
+      74%, 92% { opacity: 1; transform: translateY(0px); }
+      98%, 100% { opacity: 0.1; transform: translateY(2px); }
+    }
+    @keyframes drawCurve {
+      0%, 25% { stroke-dashoffset: 520; }
+      55%, 92% { stroke-dashoffset: 0; }
+      98%, 100% { stroke-dashoffset: 520; }
+    }
+    @keyframes drawProbeCurve {
+      0%, 52% { stroke-dashoffset: 420; opacity: 0; }
+      56% { opacity: 1; }
+      80%, 92% { stroke-dashoffset: 0; opacity: 1; }
+      98%, 100% { stroke-dashoffset: 420; opacity: 0; }
+    }
+    @keyframes pulseDot {
+      0%, 100% { r: 4; opacity: 0.9; }
+      50% { r: 6.5; opacity: 1; }
+    }
+    @keyframes progressSweep {
+      0% { width: 0px; }
+      95% { width: 820px; }
+      100% { width: 0px; }
+    }
+    @keyframes scanHighlight1 {
+      0%, 24% { opacity: 0; }
+      28%, 50% { opacity: 1; }
+      55%, 100% { opacity: 0.35; }
+    }
+    @keyframes scanHighlight2 {
+      0%, 50% { opacity: 0.35; }
+      56%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.35; }
+    }
+    .st1 { animation: fadeStage1 10s infinite ease-in-out; }
+    .st2 { animation: fadeStage2 10s infinite ease-in-out; }
+    .st3 { animation: fadeStage3 10s infinite ease-in-out; }
+    .st4 { animation: fadeStage4 10s infinite ease-in-out; }
+    .curve-anim { stroke-dasharray: 520; animation: drawCurve 10s infinite ease-in-out; }
+    .probe-anim { stroke-dasharray: 420; animation: drawProbeCurve 10s infinite ease-in-out; }
+    .pulse { animation: pulseDot 2s infinite ease-in-out; }
+    .progress-bar { animation: progressSweep 10s infinite linear; }
+    .scan1 { animation: scanHighlight1 10s infinite ease-in-out; }
+    .scan2 { animation: scanHighlight2 10s infinite ease-in-out; }
+  </style>
+
+  <rect class="bg" width="880" height="390" rx="10"/>
+
+  <!-- Header -->
+  <text x="30" y="34" class="ink title">Example 1 · Chemical Reactor (CSTR) — Active Probing Resolves Fault Ambiguity</text>
+  <text x="30" y="52" class="muted subtitle">Measured T_meas climbs to 388 K. Is the coolant valve sticking (h₁) or is the thermometer drifting +1.6 K/min (h₂)?</text>
+  <text x="850" y="34" text-anchor="end" class="mono-muted tiny">α = 5% · TUBE = 0.96 K</text>
+
+  <!-- Timeline progress bar -->
+  <rect x="30" y="64" width="820" height="3" fill="#E4E2DD" rx="1.5"/>
+  <rect x="30" y="64" height="3" fill="#1D4ED8" rx="1.5" class="progress-bar"/>
+
+  <!-- Left panel: Trajectory Plot -->
+  <rect x="30" y="82" width="495" height="258" rx="8" class="panel"/>
+  <text x="48" y="103" class="muted label">Reactor Temperature Trajectory T(t) [Kelvin]</text>
+
+  <!-- Safe / Danger bands -->
+  <rect x="65" y="108" width="440" height="21.7" class="danger-fill"/>
+  <rect x="65" y="129.7" width="440" height="172.9" class="safe-fill"/>
+  <rect x="65" y="302.6" width="440" height="17.4" class="danger-fill"/>
+
+  <!-- Upper & Lower safety limits -->
+  <line x1="65" y1="129.7" x2="505" y2="129.7" class="limit-line"/>
+  <text x="502" y="125.7" text-anchor="end" class="mono tiny" fill="#B91C1C">Runaway limit 405 K</text>
+  <line x1="65" y1="302.6" x2="505" y2="302.6" class="limit-line"/>
+  <text x="502" y="313.6" text-anchor="end" class="mono tiny" fill="#B91C1C">Quench limit 335 K</text>
+
+  <!-- Decision time t=0 and Probe window t=3m -->
+  <line x1="211.7" y1="108" x2="211.7" y2="320" class="thresh-line"/>
+  <text x="206.7" y="120" text-anchor="end" class="mono-muted tiny">t = 0 (alarm)</text>
+  <rect x="211.7" y="108" width="44.0" height="212" fill="#1D4ED8" fill-opacity="0.08"/>
+  <text x="233.7" y="314" text-anchor="middle" class="mono tiny" fill="#1D4ED8">3m probe</text>
+
+  <!-- Observed history (-10 to 0 min) -->
+  <path d="M65.0,235.9 L79.7,232.3 L94.3,227.3 L109.0,221.7 L123.7,215.5 L138.3,208.9 L153.0,202.0 L167.7,194.8 L182.3,187.3 L197.0,179.6 L211.7,171.7" fill="none" stroke="#18181B" stroke-width="2.4"/>
+  <circle cx="211.7" cy="171.7" r="4.5" fill="#18181B" class="pulse"/>
+
+  <!-- Rollouts for LLM Top-1 (coolant -8 K): h1 safe, h2 quenches! -->
+  <path d="M211.7,171.7 L241.0,186.4 L270.3,196.2 L299.7,202.8 L329.0,207.2 L358.3,210.2 L387.7,212.1 L417.0,213.5 L446.3,214.4 L475.7,215.0 L505.0,215.4" fill="none" stroke="#686662" stroke-width="1.8" stroke-dasharray="4 3" class="curve-anim"/>
+  <text x="415" y="208.8" class="mono-muted tiny">coolant -8K | h₁ (OK)</text>
+
+  <path d="M211.7,245.8 L241.0,270.6 L270.3,286.6 L299.7,296.8 L329.0,303.3 L358.3,307.5 L387.7,310.2 L417.0,311.9 L446.3,313.0 L475.7,313.7 L505.0,314.2" fill="none" stroke="#B91C1C" stroke-width="2.2" class="curve-anim"/>
+  <text x="395" y="312.5" class="mono tiny" fill="#B91C1C">coolant -8K | h₂ (QUENCH!)</text>
+
+  <!-- Probe + Certified Recovery trajectory -->
+  <path d="M211.7,171.7 L241.0,191.1 L270.3,202.9 L299.7,210.1 L329.0,214.4 L358.3,217.1 L387.7,218.7 L417.0,219.6 L446.3,220.2 L475.7,220.6 L505.0,220.8" fill="none" stroke="#15803D" stroke-width="2.8" class="probe-anim"/>
+  <text x="385" y="238.4" class="mono tiny" fill="#15803D" class="st4">✓ after 3m probe: certified safe</text>
+
+  <!-- Right Panel: Step-by-Step Decision Trace -->
+  <rect x="540" y="82" width="310" height="258" rx="8" class="panel"/>
+  <text x="556" y="103" class="muted label">RiskGate Two-Stage Decision Trace</text>
+
+  <!-- Step A -->
+  <g class="st1">
+    <rect x="556" y="114" width="278" height="48" rx="6" class="panel-subtle"/>
+    <text x="566" y="131" class="mono tiny">1. Plausible set Ĥ_τ = &#123;h₁: valve, h₂: sensor&#125;</text>
+    <text x="566" y="148" class="muted tiny">Both match the 10-min rise within τ = 1.68</text>
+  </g>
+
+  <!-- Step B -->
+  <g class="st2">
+    <rect x="556" y="170" width="278" height="50" rx="6" fill="#FEF2F2" stroke="#FECACA"/>
+    <text x="566" y="187" class="mono tiny" fill="#991B1B">2. Top-1 `coolant_sp -8 K` blocked</text>
+    <text x="566" y="204" class="muted tiny">Safe under h₁ (+14 K), but quenches under h₂ (-4.8 K)</text>
+  </g>
+
+  <!-- Step C -->
+  <g class="st3">
+    <rect x="556" y="228" width="278" height="50" rx="6" fill="#EFF6FF" stroke="#BFDBFE"/>
+    <text x="566" y="245" class="mono tiny" fill="#1D4ED8">3. Verdict: PROBE (read_backup_sensor_3m)</text>
+    <text x="566" y="262" class="muted tiny">Certified safe under h₁ &amp; h₂; resolves 100% of pairs</text>
+  </g>
+
+  <!-- Step D -->
+  <g class="st4">
+    <rect x="556" y="286" width="278" height="44" rx="6" fill="#15803D"/>
+    <text x="566" y="304" class="mono tiny" fill="#FFFFFF" font-weight="600">4. Stage 2: CERTIFY recovery (m = +18.2 K ≥ λ̂₂)</text>
+    <text x="566" y="320" class="tiny" fill="#DCFCE7">Hand-overs cut from 27.8% → 12.2% (unsafe = 4.8% ≤ 5%)</text>
+  </g>
+
+  <text x="30" y="366" class="muted tiny">Benchmark result (500 test episodes): Uncalibrated twin gate = 44.6% thermal runaways · Top-1 conformal = 0% certified · RiskGate + Probe = 4.8% unsafe, 87.8% certified.</text>
+</svg>

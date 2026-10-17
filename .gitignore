@@ -1,0 +1,28 @@
+.venv*/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+examples/e2e_output/
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+site/
+# benchmark caches and scratch: derived from third-party logs (model outputs, CC BY-NC data); never commit or publish
+benchmarks/*/cache/
+benchmarks/*/scratch/
+*.pkl
+# not for the public repository: double-blind submission material and business notes (keep them elsewhere)
+TMLR/
+paper/archive/
+REDTEAM_AND_COMMERCIALIZATION.md
+COMMERCIALIZATION_CASE_STUDIES.md
+PLAN.md
+.DS_Store

@@ -1,0 +1,228 @@
+{
+ "domain": "refunds_agent",
+ "alpha": 0.05,
+ "n_cal": 4000,
+ "calibration": {
+  "tau": 1.466319140887053,
+  "lambda": 1.0,
+  "lambda_top1": Infinity,
+  "lambda_hp": 1.0,
+  "delta_ltt": 0.1,
+  "lambda_probe": [
+   1.0,
+   -0.65
+  ],
+  "n_probe": 106,
+  "mean_plausible": 1.2542857142857142
+ },
+ "nominal": {
+  "no_checker": {
+   "n": 1500,
+   "unsafe": 0.406,
+   "unsafe_ci": [
+    0.381418421625769,
+    0.4310618289538134
+   ],
+   "ask": 0.0,
+   "safe_execution": 0.594,
+   "avoidable_ask": 0.0,
+   "probe": 0.0
+  },
+  "twin_gate": {
+   "n": 1500,
+   "unsafe": 0.08066666666666666,
+   "unsafe_ci": [
+    0.06793243543359237,
+    0.0955432923292252
+   ],
+   "ask": 0.18066666666666667,
+   "safe_execution": 0.7386666666666667,
+   "avoidable_ask": 0.058,
+   "probe": 0.0
+  },
+  "top1_crc": {
+   "n": 1500,
+   "unsafe": 0.0,
+   "unsafe_ci": [
+    2.168404344971009e-19,
+    0.002554524359480413
+   ],
+   "ask": 1.0,
+   "safe_execution": 0.0,
+   "avoidable_ask": 0.8573333333333333,
+   "probe": 0.0
+  },
+  "riskgate": {
+   "n": 1500,
+   "unsafe": 0.012666666666666666,
+   "unsafe_ci": [
+    0.008123891739346412,
+    0.019699251336360496
+   ],
+   "ask": 0.2633333333333333,
+   "safe_execution": 0.724,
+   "avoidable_ask": 0.12666666666666668,
+   "probe": 0.0
+  },
+  "riskgate_hp": {
+   "n": 1500,
+   "unsafe": 0.012666666666666666,
+   "unsafe_ci": [
+    0.008123891739346412,
+    0.019699251336360496
+   ],
+   "ask": 0.2633333333333333,
+   "safe_execution": 0.724,
+   "avoidable_ask": 0.12666666666666668,
+   "probe": 0.0
+  },
+  "riskgate_probe": {
+   "n": 1500,
+   "unsafe": 0.03133333333333333,
+   "unsafe_ci": [
+    0.023644208902775243,
+    0.04141689859684439
+   ],
+   "ask": 0.18666666666666668,
+   "safe_execution": 0.782,
+   "avoidable_ask": 0.058666666666666666,
+   "probe": 0.08933333333333333
+  }
+ },
+ "shift": {
+  "no_checker": {
+   "n": 600,
+   "unsafe": 0.46,
+   "unsafe_ci": [
+    0.4205006222063539,
+    0.5000083324599032
+   ],
+   "ask": 0.0,
+   "safe_execution": 0.54,
+   "avoidable_ask": 0.0,
+   "probe": 0.0
+  },
+  "twin_gate": {
+   "n": 600,
+   "unsafe": 0.11333333333333333,
+   "unsafe_ci": [
+    0.09038944351332592,
+    0.14119711826049028
+   ],
+   "ask": 0.19166666666666668,
+   "safe_execution": 0.695,
+   "avoidable_ask": 0.051666666666666666,
+   "probe": 0.0
+  },
+  "top1_crc": {
+   "n": 600,
+   "unsafe": 0.0,
+   "unsafe_ci": [
+    0.0,
+    0.006361933328210577
+   ],
+   "ask": 1.0,
+   "safe_execution": 0.0,
+   "avoidable_ask": 0.8233333333333334,
+   "probe": 0.0
+  },
+  "riskgate": {
+   "n": 600,
+   "unsafe": 0.041666666666666664,
+   "unsafe_ci": [
+    0.02837953071156377,
+    0.06078557483929593
+   ],
+   "ask": 0.285,
+   "safe_execution": 0.6733333333333333,
+   "avoidable_ask": 0.13333333333333333,
+   "probe": 0.0
+  },
+  "riskgate_hp": {
+   "n": 600,
+   "unsafe": 0.041666666666666664,
+   "unsafe_ci": [
+    0.02837953071156377,
+    0.06078557483929593
+   ],
+   "ask": 0.285,
+   "safe_execution": 0.6733333333333333,
+   "avoidable_ask": 0.13333333333333333,
+   "probe": 0.0
+  },
+  "riskgate_probe": {
+   "n": 600,
+   "unsafe": 0.07,
+   "unsafe_ci": [
+    0.05220162201861753,
+    0.0932696406436436
+   ],
+   "ask": 0.19,
+   "safe_execution": 0.74,
+   "avoidable_ask": 0.06166666666666667,
+   "probe": 0.10333333333333333
+  }
+ },
+ "resplits": {
+  "riskgate": {
+   "n": 20,
+   "unsafe_mean": 0.0159,
+   "unsafe_sd": 0.00467748745470139,
+   "ask_mean": 0.2566,
+   "frac_above_alpha": 0.0
+  },
+  "riskgate_hp": {
+   "n": 20,
+   "unsafe_mean": 0.0159,
+   "unsafe_sd": 0.00467748745470139,
+   "ask_mean": 0.2566,
+   "frac_above_alpha": 0.0
+  },
+  "top1_crc": {
+   "n": 20,
+   "unsafe_mean": 0.0,
+   "unsafe_sd": 0.0,
+   "ask_mean": 1.0,
+   "frac_above_alpha": 0.0
+  },
+  "riskgate_probe": {
+   "n": 20,
+   "unsafe_mean": 0.03546666666666666,
+   "unsafe_sd": 0.005737207993053377,
+   "ask_mean": 0.18866666666666665,
+   "frac_above_alpha": 0.0
+  }
+ },
+ "alpha_sweep": [
+  {
+   "alpha": 0.02,
+   "lambda": 1.0,
+   "unsafe": 0.012666666666666666,
+   "ask": 0.2633333333333333
+  },
+  {
+   "alpha": 0.05,
+   "lambda": 1.0,
+   "unsafe": 0.012666666666666666,
+   "ask": 0.2633333333333333
+  },
+  {
+   "alpha": 0.1,
+   "lambda": -0.19,
+   "unsafe": 0.07933333333333334,
+   "ask": 0.23066666666666666
+  },
+  {
+   "alpha": 0.15,
+   "lambda": -0.23,
+   "unsafe": 0.11466666666666667,
+   "ask": 0.212
+  },
+  {
+   "alpha": 0.2,
+   "lambda": -0.38,
+   "unsafe": 0.194,
+   "ask": 0.16266666666666665
+  }
+ ]
+}

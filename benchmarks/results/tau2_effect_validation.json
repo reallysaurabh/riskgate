@@ -1,0 +1,16 @@
+{
+ "retail:decisions": 321,
+ "retail:calls": 2605,
+ "retail:errors": 214,
+ "retail:pairs": 10465,
+ "retail:agree": 10429,
+ "retail:key_eq_db_neq": 0,
+ "retail:key_neq_db_eq": 36,
+ "airline:decisions": 169,
+ "airline:calls": 661,
+ "airline:errors": 7,
+ "airline:pairs": 1130,
+ "airline:agree": 1039,
+ "airline:key_eq_db_neq": 0,
+ "airline:key_neq_db_eq": 91
+}

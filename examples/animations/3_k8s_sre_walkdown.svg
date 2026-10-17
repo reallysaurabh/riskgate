@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 390" width="100%" height="100%">
+  
+  <style>
+    .bg { fill: #FAF9F5; }
+    .panel { fill: #FFFFFF; stroke: #E4E2DD; stroke-width: 1.2; }
+    .panel-subtle { fill: #F4F2EC; stroke: #E4E2DD; stroke-width: 1; }
+    .ink { fill: #18181B; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .muted { fill: #686662; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; fill: #18181B; }
+    .mono-muted { font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; fill: #686662; }
+    .title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; }
+    .subtitle { font-size: 11.5px; font-weight: 400; }
+    .label { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+    .small { font-size: 11px; }
+    .tiny { font-size: 10px; }
+    .axis { stroke: #D4D1C8; stroke-width: 1; }
+    .grid { stroke: #ECEAE3; stroke-width: 1; stroke-dasharray: 3 3; }
+    .limit-line { stroke: #B91C1C; stroke-width: 1.4; stroke-dasharray: 5 4; }
+    .thresh-line { stroke: #18181B; stroke-width: 1.4; stroke-dasharray: 4 3; }
+    .safe-fill { fill: #15803D; fill-opacity: 0.06; }
+    .danger-fill { fill: #B91C1C; fill-opacity: 0.07; }
+
+    /* Animated stages over a 10s loop */
+    @keyframes fadeStage1 {
+      0%, 5% { opacity: 0.25; }
+      10%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.25; }
+    }
+    @keyframes fadeStage2 {
+      0%, 22% { opacity: 0.15; }
+      28%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.15; }
+    }
+    @keyframes fadeStage3 {
+      0%, 44% { opacity: 0.12; }
+      52%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.12; }
+    }
+    @keyframes fadeStage4 {
+      0%, 66% { opacity: 0.1; transform: translateY(2px); }
+      74%, 92% { opacity: 1; transform: translateY(0px); }
+      98%, 100% { opacity: 0.1; transform: translateY(2px); }
+    }
+    @keyframes drawCurve {
+      0%, 25% { stroke-dashoffset: 520; }
+      55%, 92% { stroke-dashoffset: 0; }
+      98%, 100% { stroke-dashoffset: 520; }
+    }
+    @keyframes drawProbeCurve {
+      0%, 52% { stroke-dashoffset: 420; opacity: 0; }
+      56% { opacity: 1; }
+      80%, 92% { stroke-dashoffset: 0; opacity: 1; }
+      98%, 100% { stroke-dashoffset: 420; opacity: 0; }
+    }
+    @keyframes pulseDot {
+      0%, 100% { r: 4; opacity: 0.9; }
+      50% { r: 6.5; opacity: 1; }
+    }
+    @keyframes progressSweep {
+      0% { width: 0px; }
+      95% { width: 820px; }
+      100% { width: 0px; }
+    }
+    @keyframes scanHighlight1 {
+      0%, 24% { opacity: 0; }
+      28%, 50% { opacity: 1; }
+      55%, 100% { opacity: 0.35; }
+    }
+    @keyframes scanHighlight2 {
+      0%, 50% { opacity: 0.35; }
+      56%, 92% { opacity: 1; }
+      98%, 100% { opacity: 0.35; }
+    }
+    .st1 { animation: fadeStage1 10s infinite ease-in-out; }
+    .st2 { animation: fadeStage2 10s infinite ease-in-out; }
+    .st3 { animation: fadeStage3 10s infinite ease-in-out; }
+    .st4 { animation: fadeStage4 10s infinite ease-in-out; }
+    .curve-anim { stroke-dasharray: 520; animation: drawCurve 10s infinite ease-in-out; }
+    .probe-anim { stroke-dasharray: 420; animation: drawProbeCurve 10s infinite ease-in-out; }
+    .pulse { animation: pulseDot 2s infinite ease-in-out; }
+    .progress-bar { animation: progressSweep 10s infinite linear; }
+    .scan1 { animation: scanHighlight1 10s infinite ease-in-out; }
+    .scan2 { animation: scanHighlight2 10s infinite ease-in-out; }
+  </style>
+
+  <rect class="bg" width="880" height="390" rx="10"/>
+
+  <!-- Header -->
+  <text x="30" y="34" class="ink title">Example 2 · Kubernetes SRE Agent — Ranked Walk-Down Under Root-Cause Ambiguity</text>
+  <text x="30" y="52" class="muted subtitle">Alert: checkout-api p95 = 920 ms, error_rate = 6.4%. Deploy v2.14 rolled out 9m ago, AND db_cpu is at 91%.</text>
+  <text x="850" y="34" text-anchor="end" class="mono-muted tiny">LATENCY = 0.08 ms</text>
+
+  <!-- Timeline progress bar -->
+  <rect x="30" y="64" width="820" height="3" fill="#E4E2DD" rx="1.5"/>
+  <rect x="30" y="64" height="3" fill="#15803D" rx="1.5" class="progress-bar"/>
+
+  <!-- Left: Telemetry & Plausible Root Causes -->
+  <g class="st1">
+    <rect x="30" y="82" width="250" height="258" rx="8" class="panel"/>
+    <text x="46" y="104" class="muted label">Live Cluster Context &amp; Ĥ_τ</text>
+
+    <rect x="46" y="116" width="218" height="60" rx="6" class="panel-subtle"/>
+    <text x="56" y="134" class="mono tiny">p95_latency:  920 ms (SLA ≤ 500)</text>
+    <text x="56" y="150" class="mono tiny">error_rate:   6.4%   (SLA ≤ 2.0%)</text>
+    <text x="56" y="166" class="mono tiny">db_cpu / pod: 91% / 78%</text>
+
+    <text x="46" y="198" class="muted label">Plausible Root Causes (Ĥ_τ)</text>
+    <rect x="46" y="208" width="218" height="36" rx="5" fill="#F8FAFC" stroke="#CBD5E1"/>
+    <text x="56" y="224" class="mono tiny">h₁: bad_canary_deploy</text>
+    <text x="56" y="238" class="muted tiny">r = 0.62 ≤ τ (fits error spike)</text>
+
+    <rect x="46" y="250" width="218" height="36" rx="5" fill="#F8FAFC" stroke="#CBD5E1"/>
+    <text x="56" y="266" class="mono tiny">h₂: db_lock_contention</text>
+    <text x="56" y="280" class="muted tiny">r = 0.89 ≤ τ (fits db_cpu = 91%)</text>
+
+    <rect x="46" y="292" width="218" height="36" rx="5" fill="#F8FAFC" stroke="#CBD5E1"/>
+    <text x="56" y="308" class="mono tiny">h₃: noisy_neighbor_cpu</text>
+    <text x="56" y="322" class="muted tiny">r = 1.31 ≤ τ (plausible)</text>
+  </g>
+
+  <!-- Center: Candidate Walk-Down Matrix -->
+  <g class="st2">
+    <rect x="296" y="82" width="352" height="258" rx="8" class="panel"/>
+    <text x="312" y="104" class="muted label">LLM Ranked Proposals × Plausible Causes</text>
+
+    <!-- Table header -->
+    <text x="312" y="128" class="mono-muted tiny">CANDIDATE ACTION</text>
+    <text x="495" y="128" text-anchor="middle" class="mono-muted tiny">h₁</text>
+    <text x="545" y="128" text-anchor="middle" class="mono-muted tiny">h₂</text>
+    <text x="595" y="128" text-anchor="middle" class="mono-muted tiny">h₃</text>
+    <line x1="312" y1="135" x2="632" y2="135" stroke="#E4E2DD"/>
+
+    <!-- Row 1: Hard Rule Blocked -->
+    <rect x="310" y="143" width="324" height="40" rx="5" fill="#FEF2F2" stroke="#FECACA"/>
+    <text x="320" y="160" class="mono tiny" fill="#991B1B">#1 drop_prod_replica_table</text>
+    <text x="320" y="175" class="muted tiny">Blocked by HardRule(&quot;no_destructive_ddl&quot;)</text>
+    <text x="624" y="166" text-anchor="end" class="mono tiny" fill="#B91C1C">HARD BLOCK</text>
+
+    <!-- Row 2: Top-1 viable fails under h2 -->
+    <g class="scan1">
+      <rect x="310" y="191" width="324" height="44" rx="5" fill="#FFFBEB" stroke="#FDE68A"/>
+      <text x="320" y="209" class="mono tiny">#2 rollback_deploy(v2.13)</text>
+      <text x="320" y="225" class="muted tiny">Fixes h₁, but leaves DB lock h₂ at p95=890ms</text>
+      <text x="495" y="214" text-anchor="middle" class="mono tiny" fill="#15803D">+0.38</text>
+      <text x="545" y="214" text-anchor="middle" class="mono tiny" fill="#B91C1C">-0.78</text>
+      <text x="595" y="214" text-anchor="middle" class="mono tiny" fill="#B91C1C">-0.41</text>
+    </g>
+
+    <!-- Row 3: Scale replicas +4 fails under h2 (exhausts DB pool!) -->
+    <rect x="310" y="243" width="324" height="40" rx="5" class="panel-subtle"/>
+    <text x="320" y="260" class="mono tiny">#3 scale_replicas(+4)</text>
+    <text x="320" y="274" class="muted tiny">More pods exhaust DB connection pool under h₂</text>
+    <text x="495" y="264" text-anchor="middle" class="mono tiny" fill="#15803D">+0.15</text>
+    <text x="545" y="264" text-anchor="middle" class="mono tiny" fill="#B91C1C">-1.12</text>
+    <text x="595" y="264" text-anchor="middle" class="mono tiny" fill="#15803D">+0.29</text>
+
+    <!-- Row 4: Certified! -->
+    <g class="scan2">
+      <rect x="310" y="291" width="324" height="40" rx="5" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
+      <text x="320" y="308" class="mono tiny" fill="#166534">#4 shed_noncritical_traffic(25%)</text>
+      <text x="320" y="322" class="muted tiny">Drops load on pods AND DB; safe under all h ∈ Ĥ_τ</text>
+      <text x="495" y="312" text-anchor="middle" class="mono tiny" fill="#15803D">+0.34</text>
+      <text x="545" y="312" text-anchor="middle" class="mono tiny" fill="#15803D">+0.28</text>
+      <text x="595" y="312" text-anchor="middle" class="mono tiny" fill="#15803D">+0.31</text>
+    </g>
+  </g>
+
+  <!-- Right: Resulting Verdict & Contrastive Audit Record -->
+  <g class="st4">
+    <rect x="664" y="82" width="186" height="258" rx="8" class="panel"/>
+    <text x="680" y="104" class="muted label">Certified Output</text>
+
+    <rect x="678" y="116" width="158" height="52" rx="6" fill="#15803D"/>
+    <text x="690" y="137" class="mono tiny" fill="#FFFFFF" font-weight="600">✓ CERTIFY #4</text>
+    <text x="690" y="155" class="mono tiny" fill="#DCFCE7">s = +0.28 ≥ λ̂ (+0.14)</text>
+
+    <text x="680" y="190" class="muted label">Contrastive Explanation</text>
+    <rect x="678" y="200" width="158" height="126" rx="6" class="panel-subtle"/>
+    <text x="686" y="218" class="mono tiny">&quot;Skipped #2 rollback:</text>
+    <text x="686" y="233" class="muted tiny">under h₂ (db_lock),</text>
+    <text x="686" y="247" class="muted tiny">latency_p95 = -0.78.</text>
+    <text x="686" y="266" class="mono tiny" fill="#15803D">Certified #4 shed_25%:</text>
+    <text x="686" y="281" class="muted tiny">worst margin +0.28</text>
+    <text x="686" y="295" class="muted tiny">across &#123;h₁, h₂, h₃&#125;.</text>
+    <text x="686" y="314" class="mono-muted tiny">sha256: 9f4c...8a1b&quot;</text>
+  </g>
+
+  <text x="30" y="366" class="muted tiny">Why ranked walk-down matters: Top-1 CRC can only accept or reject #2 (high ask rate). RiskGate walks down the agent's list and certifies #4 automatically.</text>
+</svg>

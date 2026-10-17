@@ -1,0 +1,228 @@
+{
+ "domain": "cstr_reactor",
+ "alpha": 0.05,
+ "n_cal": 800,
+ "calibration": {
+  "tau": 3.3776596800689234,
+  "lambda": -5.035302539090935,
+  "lambda_top1": 10.015914220604031,
+  "lambda_hp": -5.029482287343285,
+  "delta_ltt": 0.1,
+  "lambda_probe": [
+   7.244000113949255,
+   9.18411738687621
+  ],
+  "n_probe": 227,
+  "mean_plausible": 10.29642857142857
+ },
+ "nominal": {
+  "no_checker": {
+   "n": 400,
+   "unsafe": 0.3625,
+   "unsafe_ci": [
+    0.31690358933984025,
+    0.4107123868250719
+   ],
+   "ask": 0.0,
+   "safe_execution": 0.6375,
+   "avoidable_ask": 0.0,
+   "probe": 0.0
+  },
+  "twin_gate": {
+   "n": 400,
+   "unsafe": 0.1625,
+   "unsafe_ci": [
+    0.1295868626510332,
+    0.2018341697537513
+   ],
+   "ask": 0.0475,
+   "safe_execution": 0.79,
+   "avoidable_ask": 0.025,
+   "probe": 0.0
+  },
+  "top1_crc": {
+   "n": 400,
+   "unsafe": 0.035,
+   "unsafe_ci": [
+    0.0209610999014911,
+    0.05788565585621193
+   ],
+   "ask": 0.95,
+   "safe_execution": 0.015,
+   "avoidable_ask": 0.875,
+   "probe": 0.0
+  },
+  "riskgate": {
+   "n": 400,
+   "unsafe": 0.0925,
+   "unsafe_ci": [
+    0.06785354688500786,
+    0.12489925520373191
+   ],
+   "ask": 0.3,
+   "safe_execution": 0.6075,
+   "avoidable_ask": 0.2525,
+   "probe": 0.0
+  },
+  "riskgate_hp": {
+   "n": 400,
+   "unsafe": 0.0625,
+   "unsafe_ci": [
+    0.04268884343581125,
+    0.09063471708890933
+   ],
+   "ask": 0.3,
+   "safe_execution": 0.6375,
+   "avoidable_ask": 0.2525,
+   "probe": 0.0
+  },
+  "riskgate_probe": {
+   "n": 400,
+   "unsafe": 0.05,
+   "unsafe_ci": [
+    0.0325971756266401,
+    0.07596420091307252
+   ],
+   "ask": 0.2575,
+   "safe_execution": 0.7025,
+   "avoidable_ask": 0.21,
+   "probe": 0.7975
+  }
+ },
+ "shift": {
+  "no_checker": {
+   "n": 200,
+   "unsafe": 0.32,
+   "unsafe_ci": [
+    0.2592642960770526,
+    0.38752026605354306
+   ],
+   "ask": 0.0,
+   "safe_execution": 0.68,
+   "avoidable_ask": 0.0,
+   "probe": 0.0
+  },
+  "twin_gate": {
+   "n": 200,
+   "unsafe": 0.185,
+   "unsafe_ci": [
+    0.13730116322736063,
+    0.2445718205011816
+   ],
+   "ask": 0.14,
+   "safe_execution": 0.675,
+   "avoidable_ask": 0.08,
+   "probe": 0.0
+  },
+  "top1_crc": {
+   "n": 200,
+   "unsafe": 0.025,
+   "unsafe_ci": [
+    0.010724561470787711,
+    0.05717914415161715
+   ],
+   "ask": 0.965,
+   "safe_execution": 0.01,
+   "avoidable_ask": 0.82,
+   "probe": 0.0
+  },
+  "riskgate": {
+   "n": 200,
+   "unsafe": 0.1,
+   "unsafe_ci": [
+    0.06566994117157123,
+    0.14940686356308552
+   ],
+   "ask": 0.435,
+   "safe_execution": 0.465,
+   "avoidable_ask": 0.345,
+   "probe": 0.0
+  },
+  "riskgate_hp": {
+   "n": 200,
+   "unsafe": 0.09,
+   "unsafe_ci": [
+    0.05768697871453362,
+    0.13776674613848952
+   ],
+   "ask": 0.435,
+   "safe_execution": 0.475,
+   "avoidable_ask": 0.345,
+   "probe": 0.0
+  },
+  "riskgate_probe": {
+   "n": 200,
+   "unsafe": 0.095,
+   "unsafe_ci": [
+    0.06166261364986359,
+    0.14360265114397636
+   ],
+   "ask": 0.46,
+   "safe_execution": 0.46,
+   "avoidable_ask": 0.37,
+   "probe": 0.575
+  }
+ },
+ "resplits": {
+  "riskgate": {
+   "n": 10,
+   "unsafe_mean": 0.045500000000000006,
+   "unsafe_sd": 0.00947364766074821,
+   "ask_mean": 0.3355,
+   "frac_above_alpha": 0.2
+  },
+  "riskgate_hp": {
+   "n": 10,
+   "unsafe_mean": 0.03200000000000001,
+   "unsafe_sd": 0.008276472678623425,
+   "ask_mean": 0.575,
+   "frac_above_alpha": 0.0
+  },
+  "top1_crc": {
+   "n": 10,
+   "unsafe_mean": 0.05225,
+   "unsafe_sd": 0.012371843031658624,
+   "ask_mean": 0.9067500000000001,
+   "frac_above_alpha": 0.4
+  },
+  "riskgate_probe": {
+   "n": 10,
+   "unsafe_mean": 0.04425,
+   "unsafe_sd": 0.008143248737451167,
+   "ask_mean": 0.42524999999999996,
+   "frac_above_alpha": 0.2
+  }
+ },
+ "alpha_sweep": [
+  {
+   "alpha": 0.02,
+   "lambda": -5.020133152448977,
+   "unsafe": 0.0475,
+   "ask": 0.3
+  },
+  {
+   "alpha": 0.05,
+   "lambda": -5.035302539090935,
+   "unsafe": 0.0925,
+   "ask": 0.3
+  },
+  {
+   "alpha": 0.1,
+   "lambda": -5.038171589331682,
+   "unsafe": 0.095,
+   "ask": 0.3
+  },
+  {
+   "alpha": 0.15,
+   "lambda": -5.038171589331682,
+   "unsafe": 0.095,
+   "ask": 0.3
+  },
+  {
+   "alpha": 0.2,
+   "lambda": -5.038171589331682,
+   "unsafe": 0.095,
+   "ask": 0.3
+  }
+ ]
+}

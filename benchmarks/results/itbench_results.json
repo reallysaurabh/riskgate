@@ -1,0 +1,1256 @@
+{
+ "dataset": "ITBench-Trajectories (OpenAI-GPT-OSS-120B, ReAct + code, SRE)",
+ "licence": "ITBench-Trajectories: CC BY-NC 4.0 (non-commercial research use; outputs not redistributed)",
+ "doer": "gpt-oss-120b-react",
+ "label": "unsafe iff no claimed root-cause entity matches the ground truth (LLM judge)",
+ "shadow_replay": {
+  "n_scenarios": 35,
+  "n_runs": 105,
+  "n_no_output": 15,
+  "n_judged": 90,
+  "n_empty_claim": 5,
+  "n_claims": 85,
+  "entity_correct": {
+   "k": 15,
+   "n": 85,
+   "rate": 0.17647058823529413,
+   "wilson": [
+    0.10996266956209358,
+    0.2709579802235924
+   ]
+  },
+  "entity_precise": {
+   "k": 12,
+   "n": 85
+  },
+  "component_correct": {
+   "k": 49,
+   "n": 85
+  },
+  "claim_size": {
+   "mean": 1.5176470588235293,
+   "max": 15
+  },
+  "entity_correct_all_runs": {
+   "k": 15,
+   "n": 105,
+   "rate": 0.14285714285714285
+  },
+  "scenario_pass@1": 0.14285714285714285,
+  "scenario_pass@3": 0.34285714285714286,
+  "scenarios_all_runs_correct": 1,
+  "by_category": {
+   "feature-flag config (flagd)": {
+    "n_scenarios": 13,
+    "n_claims": 32,
+    "entity_correct": 0,
+    "component_correct": 15
+   },
+   "injected fault (chaos-mesh object)": {
+    "n_scenarios": 12,
+    "n_claims": 31,
+    "entity_correct": 6,
+    "component_correct": 23
+   },
+   "other infrastructure (namespace, HPA, network policy)": {
+    "n_scenarios": 2,
+    "n_claims": 4,
+    "entity_correct": 1,
+    "component_correct": 1
+   },
+   "workload (deployment/pod)": {
+    "n_scenarios": 7,
+    "n_claims": 18,
+    "entity_correct": 8,
+    "component_correct": 10
+   }
+  },
+  "consistency": {
+   "scenarios_ge2_claims": 33,
+   "unanimous": 4,
+   "unanimous_correct": 1,
+   "unanimous_wrong": 3,
+   "pairs": 69,
+   "pairs_agree": 18,
+   "unanimous_wrong_scenarios": {
+    "Scenario-7": {
+     "claim": "workload:frontend",
+     "runs": 2,
+     "gt": [
+      "flagd-config"
+     ]
+    },
+    "Scenario-21": {
+     "claim": "workload:valkey-cart",
+     "runs": 3,
+     "gt": [
+      "otel-demo-valkey-memory-stress"
+     ]
+    },
+    "Scenario-83": {
+     "claim": "workload:checkout",
+     "runs": 3,
+     "gt": [
+      "otel-demo-email-checkout-network-partition"
+     ]
+    }
+   },
+   "self_consistency_signal": {
+    "n_runs": 84,
+    "agree_with_another_run": 27,
+    "correct_if_agree": 0.18518518518518517,
+    "correct_if_disagree": 0.17543859649122806
+   },
+   "correctness_pattern_over_scenarios": {
+    "all claiming runs wrong": 22,
+    "mixed": 11,
+    "all claiming runs right": 1
+   }
+  },
+  "claim_never_observed": {
+   "n": 12,
+   "of": 85,
+   "correct_among_them": 0
+  },
+  "tool_calls": {
+   "total": 2888,
+   "per_run_mean": 27.504761904761907,
+   "timed_out": 679,
+   "arg_or_validation_errors": 319,
+   "echo_outputs_dropped": 413
+  },
+  "judge_check": {
+   "n_entities": 129,
+   "agreement": 0.9767441860465116,
+   "kappa": 0.8900255754475701,
+   "judge_positive": 15,
+   "rule_positive": 16,
+   "disagreements": [
+    {
+     "run": "Scenario-24/1",
+     "entity": "otel-demo/Service/checkout",
+     "gt": [
+      "checkout-deployment"
+     ],
+     "judge": false,
+     "rule": true
+    },
+    {
+     "run": "Scenario-29/3",
+     "entity": "chaos-mesh/JVMChaos/otel-demo-ad-jvm-return-6rznj",
+     "gt": [
+      "jvm-return-otel-demo-ad-1"
+     ],
+     "judge": true,
+     "rule": false
+    },
+    {
+     "run": "Scenario-105/2",
+     "entity": "otel-demo/Pod/product-catalog-fcf7564cf-p8wgh",
+     "gt": [
+      "product-catalog-deployment"
+     ],
+     "judge": false,
+     "rule": true
+    }
+   ]
+  },
+  "judge_saw_claim": 1.0
+ },
+ "gate": {
+  "alpha": 0.1,
+  "dev_scenarios": [
+   "Scenario-2",
+   "Scenario-4",
+   "Scenario-5",
+   "Scenario-6",
+   "Scenario-14",
+   "Scenario-23",
+   "Scenario-24",
+   "Scenario-34",
+   "Scenario-81",
+   "Scenario-102"
+  ],
+  "n_dev_claims": 26,
+  "n_heldout_claims": 59,
+  "n_heldout_groups": 24,
+  "base_unsafe_heldout_pooled": 0.847457627118644,
+  "base_unsafe_heldout_groupmean": 0.8541666666666666,
+  "auroc": {
+   "twin": {
+    "dev": 0.9,
+    "heldout": 0.8744444444444445,
+    "heldout_ci95": [
+     0.743859068627451,
+     0.9636363636363636
+    ]
+   },
+   "top1": {
+    "dev": 0.9,
+    "heldout": 0.9333333333333333,
+    "heldout_ci95": [
+     0.8511873100303952,
+     0.9911154684095861
+    ]
+   },
+   "riskgate": {
+    "dev": 0.85,
+    "heldout": 0.9,
+    "heldout_ci95": [
+     0.7169215275208616,
+     1.0
+    ]
+   }
+  },
+  "heldout_score_profile": [
+   {
+    "score": 4.080471895621705,
+    "correct": true,
+    "run": "Scenario-22/2",
+    "claim": [
+     "otel-demo/StressChaos/otel-demo-ad-memory-stress"
+    ]
+   },
+   {
+    "score": 3.1319528664807628,
+    "correct": false,
+    "run": "Scenario-21/3",
+    "claim": [
+     "otel-demo/Pod/valkey-cart-58df56c79c-4cvft",
+     "otel-demo/Deployment/valkey-cart"
+    ]
+   },
+   {
+    "score": 3.109861228866811,
+    "correct": true,
+    "run": "Scenario-33/1",
+    "claim": [
+     "otel-demo/Deployment/ad",
+     "otel-demo/Deployment/cart"
+    ]
+   },
+   {
+    "score": 2.0477755722513717,
+    "correct": true,
+    "run": "Scenario-25/2",
+    "claim": [
+     "chaos-mesh/StressChaos/otel-demo-recommendation-cpu-stress-4jwl9"
+    ]
+   },
+   {
+    "score": 2.046027922916008,
+    "correct": true,
+    "run": "Scenario-18/3",
+    "claim": [
+     "chaos-mesh/PodChaos/otel-demo-product-catalog-network-delay-q5s8b"
+    ]
+   },
+   {
+    "score": 2.0168236118310605,
+    "correct": true,
+    "run": "Scenario-19/2",
+    "claim": [
+     "chaos-mesh/NetworkChaos/otel-demo-email-checkout-network-partition"
+    ]
+   },
+   {
+    "score": 1.9764998185377132,
+    "correct": true,
+    "run": "Scenario-29/3",
+    "claim": [
+     "chaos-mesh/JVMChaos/otel-demo-ad-jvm-return-6rznj"
+    ]
+   },
+   {
+    "score": 1.0,
+    "correct": false,
+    "run": "Scenario-18/2",
+    "claim": [
+     "otel-demo/Pod/checkout-5dccddf8bb-9dn2q"
+    ]
+   },
+   {
+    "score": 0.9831763881689393,
+    "correct": false,
+    "run": "Scenario-21/2",
+    "claim": [
+     "otel-demo/Pod/valkey-cart-58df56c79c-4cvft"
+    ]
+   },
+   {
+    "score": 0.9831763881689393,
+    "correct": true,
+    "run": "Scenario-105/2",
+    "claim": [
+     "otel-demo/Pod/product-catalog-fcf7564cf-p8wgh",
+     "otel-demo/Deployment/product-catalog"
+    ]
+   },
+   {
+    "score": 0.9450693855665946,
+    "correct": true,
+    "run": "Scenario-105/1",
+    "claim": [
+     "otel-demo/Deployment/product-catalog"
+    ]
+   },
+   {
+    "score": 0.08068528194400537,
+    "correct": false,
+    "run": "Scenario-13/1",
+    "claim": [
+     "otel-demo/Deployment/frontend-proxy"
+    ]
+   },
+   {
+    "score": 0.03465735902799727,
+    "correct": false,
+    "run": "Scenario-35/1",
+    "claim": [
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": 0.016823611831060736,
+    "correct": false,
+    "run": "Scenario-29/1",
+    "claim": [
+     "otel-demo/Service/ad"
+    ]
+   },
+   {
+    "score": 0.0,
+    "correct": false,
+    "run": "Scenario-1/2",
+    "claim": [
+     "otel-demo/Pod/frontend-675fd7b5c5-jlpzp",
+     "otel-demo/Pod/checkout-5dccddf8bb-vh65b"
+    ]
+   },
+   {
+    "score": -0.02554128118829957,
+    "correct": false,
+    "run": "Scenario-83/3",
+    "claim": [
+     "otel-demo/Deployment/checkout"
+    ]
+   },
+   {
+    "score": -0.029389333245106064,
+    "correct": false,
+    "run": "Scenario-1/3",
+    "claim": [
+     "otel-demo/Deployment/frontend-proxy"
+    ]
+   },
+   {
+    "score": -0.03465735902799727,
+    "correct": false,
+    "run": "Scenario-11/1",
+    "claim": [
+     "otel-demo/Service/checkout",
+     "otel-demo/Service/flagd"
+    ]
+   },
+   {
+    "score": -0.040546510810816505,
+    "correct": false,
+    "run": "Scenario-15/1",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": -0.06263814842476845,
+    "correct": false,
+    "run": "Scenario-29/2",
+    "claim": [
+     "otel-demo/Deployment/ad",
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": -1.0202732554054084,
+    "correct": false,
+    "run": "Scenario-20/1",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": -1.0255412811882993,
+    "correct": false,
+    "run": "Scenario-22/3",
+    "claim": [
+     "otel-demo/Pod/ad-554b849958-l9ft5"
+    ]
+   },
+   {
+    "score": -1.0626381484247682,
+    "correct": false,
+    "run": "Scenario-17/1",
+    "claim": [
+     "otel-demo/Deployment/recommendation",
+     "otel-demo/Deployment/product-catalog"
+    ]
+   },
+   {
+    "score": -1.0950693855665945,
+    "correct": false,
+    "run": "Scenario-12/3",
+    "claim": [
+     "otel-demo/Service/frontend-proxy"
+    ]
+   },
+   {
+    "score": -2.0202732554054084,
+    "correct": false,
+    "run": "Scenario-17/3",
+    "claim": [
+     "otel-demo/Service/product-catalog-service"
+    ]
+   },
+   {
+    "score": -2.0346573590279973,
+    "correct": false,
+    "run": "Scenario-83/2",
+    "claim": [
+     "otel-demo/Deployment/checkout"
+    ]
+   },
+   {
+    "score": -2.0752038698388136,
+    "correct": false,
+    "run": "Scenario-25/3",
+    "claim": [
+     "otel-demo/Deployment/recommendation"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-1/1",
+    "claim": [
+     "otel-demo/Deployment/cart"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-7/1",
+    "claim": [
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-7/2",
+    "claim": [
+     "otel-demo/Pod/frontend-675fd7b5c5-sn9gc"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-8/1",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-8/3",
+    "claim": [
+     "otel-demo/Deployment/kube-controller-manager",
+     "otel-demo/Deployment/kube-scheduler"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-9/2",
+    "claim": [
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-9/3",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-11/2",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-11/3",
+    "claim": [
+     "otel-demo/Pod/checkout-5f7b6c5c7f-9k2l"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-12/2",
+    "claim": [
+     "otel-demo/Deployment/cart"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-13/2",
+    "claim": [
+     "otel-demo/Pod/frontend-675fd7b5c5-f44st",
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-13/3",
+    "claim": [
+     "otel-demo/Pod/ad-5c9d8f9b8c-6j9hq"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-15/2",
+    "claim": [
+     "otel-demo/Deployment/ad",
+     "otel-demo/Deployment/fraud-detection",
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-15/3",
+    "claim": [
+     "otel-demo/Deployment/checkoutservice",
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-16/2",
+    "claim": [
+     "otel-demo/Deployment/postgresql"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-17/2",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-19/1",
+    "claim": [
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-19/3",
+    "claim": [
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-20/2",
+    "claim": [
+     "otel-demo/Deployment/ad",
+     "otel-demo/Service/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": true,
+    "run": "Scenario-20/3",
+    "claim": [
+     "otel-demo/Deployment/product-catalog"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-21/1",
+    "claim": [
+     "otel-demo/Pod/valkey-cart-58df56c79c-4cvft"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-22/1",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-31/2",
+    "claim": [
+     "otel-demo/Deployment/checkoutservice"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-31/3",
+    "claim": [
+     "otel-demo/Deployment/ad",
+     "otel-demo/Deployment/cart",
+     "otel-demo/Deployment/fraud-detection"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-33/3",
+    "claim": [
+     "default/Node/node-1"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-35/2",
+    "claim": [
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-80/1",
+    "claim": [
+     "otel-demo/Deployment/cart"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-80/3",
+    "claim": [
+     "otel-demo/Deployment/checkout",
+     "otel-demo/Deployment/ad"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-83/1",
+    "claim": [
+     "otel-demo/Deployment/checkout"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-91/1",
+    "claim": [
+     "kube-system/Deployment/kube-scheduler",
+     "kube-system/Deployment/kube-controller-manager"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-91/2",
+    "claim": [
+     "otel-demo/Deployment/frontend"
+    ]
+   },
+   {
+    "score": "-inf",
+    "correct": false,
+    "run": "Scenario-105/3",
+    "claim": [
+     "otel-demo/Deployment/checkoutservice"
+    ]
+   }
+  ],
+  "protocol": {
+   "0.1": {
+    "alpha": 0.1,
+    "cal_frac": 0.5,
+    "n_decisions": 59,
+    "n_groups": 24,
+    "n_cal": 28,
+    "n_test": 31,
+    "fixed_split": {
+     "none": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.7777777777777777,
+      "unsafe_pooled": 0.7741935483870968,
+      "unsafe_ci": [
+       0.6018723994130262,
+       0.8860500840550121
+      ],
+      "ask": 0.0,
+      "ask_pooled": 0.0,
+      "safe_auto": 0.2222222222222222,
+      "avoidable_ask": 0.0,
+      "unsafe_runs": 0.7741935483870968,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": "-inf"
+     },
+     "twin (top-1 evidence, fixed)": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.09722222222222221,
+      "unsafe_pooled": 0.0967741935483871,
+      "unsafe_ci": [
+       0.03346403609464399,
+       0.2490028999817704
+      ],
+      "ask": 0.6805555555555555,
+      "ask_pooled": 0.6774193548387096,
+      "safe_auto": 0.2222222222222222,
+      "avoidable_ask": 0.0,
+      "unsafe_runs": 0.0967741935483871,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": 0.0
+     },
+     "top-1 + CRC": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.0,
+      "unsafe_pooled": 0.0,
+      "unsafe_ci": [
+       0.0,
+       0.11025900073475385
+      ],
+      "ask": 0.9999999999999999,
+      "ask_pooled": 1.0,
+      "safe_auto": 0.0,
+      "avoidable_ask": 0.2222222222222222,
+      "unsafe_runs": 0.0,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": "inf"
+     },
+     "riskgate (CRC)": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.0,
+      "unsafe_pooled": 0.0,
+      "unsafe_ci": [
+       0.0,
+       0.11025900073475385
+      ],
+      "ask": 0.9999999999999999,
+      "ask_pooled": 1.0,
+      "safe_auto": 0.0,
+      "avoidable_ask": 0.2222222222222222,
+      "unsafe_runs": 0.0,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": "inf"
+     },
+     "riskgate (LTT)": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.0,
+      "unsafe_pooled": 0.0,
+      "unsafe_ci": [
+       0.0,
+       0.11025900073475385
+      ],
+      "ask": 0.9999999999999999,
+      "ask_pooled": 1.0,
+      "safe_auto": 0.0,
+      "avoidable_ask": 0.2222222222222222,
+      "unsafe_runs": 0.0,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": "inf"
+     }
+    },
+    "resplits": {
+     "top-1 + CRC": {
+      "n": 200,
+      "unsafe_mean": 0.023402777777777776,
+      "unsafe_sd": 0.03855455240049441,
+      "ask_mean": 0.9525,
+      "safe_auto_mean": 0.024097222222222225,
+      "frac_above_alpha": 0.035
+     },
+     "riskgate (CRC)": {
+      "n": 200,
+      "unsafe_mean": 0.01986111111111111,
+      "unsafe_sd": 0.028851137192213938,
+      "ask_mean": 0.9425,
+      "safe_auto_mean": 0.03763888888888889,
+      "frac_above_alpha": 0.0
+     },
+     "riskgate (LTT)": {
+      "n": 200,
+      "unsafe_mean": 0.0,
+      "unsafe_sd": 0.0,
+      "ask_mean": 1.0,
+      "safe_auto_mean": 0.0,
+      "frac_above_alpha": 0.0
+     }
+    },
+    "alpha_sweep": {
+     "top-1 + CRC": [
+      {
+       "alpha": 0.05,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.1,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.15,
+       "lambda": 1.0,
+       "unsafe": 0.0,
+       "ask": 0.9027777777777776,
+       "safe_auto": 0.09722222222222221
+      },
+      {
+       "alpha": 0.2,
+       "lambda": 0.08068528194400537,
+       "unsafe": 0.0,
+       "ask": 0.847222222222222,
+       "safe_auto": 0.15277777777777776
+      },
+      {
+       "alpha": 0.3,
+       "lambda": -1.0047655089902163,
+       "unsafe": 0.09722222222222221,
+       "ask": 0.6805555555555555,
+       "safe_auto": 0.2222222222222222
+      }
+     ],
+     "riskgate (CRC)": [
+      {
+       "alpha": 0.05,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.1,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.15,
+       "lambda": 1.0,
+       "unsafe": 0.0,
+       "ask": 0.8333333333333333,
+       "safe_auto": 0.16666666666666666
+      },
+      {
+       "alpha": 0.2,
+       "lambda": 0.08068528194400537,
+       "unsafe": 0.0,
+       "ask": 0.7777777777777777,
+       "safe_auto": 0.2222222222222222
+      },
+      {
+       "alpha": 0.3,
+       "lambda": -1.0202732554054084,
+       "unsafe": 0.18055555555555555,
+       "ask": 0.5972222222222222,
+       "safe_auto": 0.2222222222222222
+      }
+     ]
+    },
+    "transfer": {}
+   },
+   "0.2": {
+    "alpha": 0.2,
+    "cal_frac": 0.5,
+    "n_decisions": 59,
+    "n_groups": 24,
+    "n_cal": 28,
+    "n_test": 31,
+    "fixed_split": {
+     "none": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.7777777777777777,
+      "unsafe_pooled": 0.7741935483870968,
+      "unsafe_ci": [
+       0.6018723994130262,
+       0.8860500840550121
+      ],
+      "ask": 0.0,
+      "ask_pooled": 0.0,
+      "safe_auto": 0.2222222222222222,
+      "avoidable_ask": 0.0,
+      "unsafe_runs": 0.7741935483870968,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": "-inf"
+     },
+     "twin (top-1 evidence, fixed)": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.09722222222222221,
+      "unsafe_pooled": 0.0967741935483871,
+      "unsafe_ci": [
+       0.03346403609464399,
+       0.2490028999817704
+      ],
+      "ask": 0.6805555555555555,
+      "ask_pooled": 0.6774193548387096,
+      "safe_auto": 0.2222222222222222,
+      "avoidable_ask": 0.0,
+      "unsafe_runs": 0.0967741935483871,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": 0.0
+     },
+     "top-1 + CRC": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.0,
+      "unsafe_pooled": 0.0,
+      "unsafe_ci": [
+       0.0,
+       0.11025900073475385
+      ],
+      "ask": 0.847222222222222,
+      "ask_pooled": 0.8387096774193549,
+      "safe_auto": 0.15277777777777776,
+      "avoidable_ask": 0.06944444444444445,
+      "unsafe_runs": 0.0,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": 0.08068528194400537
+     },
+     "riskgate (CRC)": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.0,
+      "unsafe_pooled": 0.0,
+      "unsafe_ci": [
+       0.0,
+       0.11025900073475385
+      ],
+      "ask": 0.7777777777777777,
+      "ask_pooled": 0.7741935483870968,
+      "safe_auto": 0.2222222222222222,
+      "avoidable_ask": 0.0,
+      "unsafe_runs": 0.0,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": 0.08068528194400537
+     },
+     "riskgate (LTT)": {
+      "n": 31,
+      "n_groups": 12,
+      "unsafe": 0.0,
+      "unsafe_pooled": 0.0,
+      "unsafe_ci": [
+       0.0,
+       0.11025900073475385
+      ],
+      "ask": 0.9999999999999999,
+      "ask_pooled": 1.0,
+      "safe_auto": 0.0,
+      "avoidable_ask": 0.2222222222222222,
+      "unsafe_runs": 0.0,
+      "base_unsafe": 0.7777777777777777,
+      "lambda": "inf"
+     }
+    },
+    "resplits": {
+     "top-1 + CRC": {
+      "n": 200,
+      "unsafe_mean": 0.1073611111111111,
+      "unsafe_sd": 0.08866845497361171,
+      "ask_mean": 0.7726388888888889,
+      "safe_auto_mean": 0.12,
+      "frac_above_alpha": 0.14
+     },
+     "riskgate (CRC)": {
+      "n": 200,
+      "unsafe_mean": 0.10847222222222223,
+      "unsafe_sd": 0.08300153854739421,
+      "ask_mean": 0.756597222222222,
+      "safe_auto_mean": 0.13493055555555558,
+      "frac_above_alpha": 0.145
+     },
+     "riskgate (LTT)": {
+      "n": 200,
+      "unsafe_mean": 0.01986111111111111,
+      "unsafe_sd": 0.028851137192213938,
+      "ask_mean": 0.9425,
+      "safe_auto_mean": 0.03763888888888889,
+      "frac_above_alpha": 0.0
+     }
+    },
+    "alpha_sweep": {
+     "top-1 + CRC": [
+      {
+       "alpha": 0.05,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.1,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.15,
+       "lambda": 1.0,
+       "unsafe": 0.0,
+       "ask": 0.9027777777777776,
+       "safe_auto": 0.09722222222222221
+      },
+      {
+       "alpha": 0.2,
+       "lambda": 0.08068528194400537,
+       "unsafe": 0.0,
+       "ask": 0.847222222222222,
+       "safe_auto": 0.15277777777777776
+      },
+      {
+       "alpha": 0.3,
+       "lambda": -1.0047655089902163,
+       "unsafe": 0.09722222222222221,
+       "ask": 0.6805555555555555,
+       "safe_auto": 0.2222222222222222
+      }
+     ],
+     "riskgate (CRC)": [
+      {
+       "alpha": 0.05,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.1,
+       "lambda": "inf",
+       "unsafe": 0.0,
+       "ask": 0.9999999999999999,
+       "safe_auto": 0.0
+      },
+      {
+       "alpha": 0.15,
+       "lambda": 1.0,
+       "unsafe": 0.0,
+       "ask": 0.8333333333333333,
+       "safe_auto": 0.16666666666666666
+      },
+      {
+       "alpha": 0.2,
+       "lambda": 0.08068528194400537,
+       "unsafe": 0.0,
+       "ask": 0.7777777777777777,
+       "safe_auto": 0.2222222222222222
+      },
+      {
+       "alpha": 0.3,
+       "lambda": -1.0202732554054084,
+       "unsafe": 0.18055555555555555,
+       "ask": 0.5972222222222222,
+       "safe_auto": 0.2222222222222222
+      }
+     ]
+    },
+    "transfer": {}
+   }
+  },
+  "p9_library_check": {
+   "riskgate (CRC) @ alpha=0.1": {
+    "harness_lambda": "inf",
+    "gate_lambda": "inf",
+    "n_groups": 12
+   },
+   "riskgate (LTT) @ alpha=0.1": {
+    "harness_lambda": "inf",
+    "gate_lambda": "inf",
+    "n_groups": 12
+   },
+   "top-1 + CRC @ alpha=0.1": {
+    "harness_lambda": "inf",
+    "gate_lambda": "inf",
+    "n_groups": 12
+   },
+   "riskgate (CRC) @ alpha=0.2": {
+    "harness_lambda": 0.08068528194400537,
+    "gate_lambda": 0.08068528194400537,
+    "n_groups": 12
+   },
+   "riskgate (LTT) @ alpha=0.2": {
+    "harness_lambda": "inf",
+    "gate_lambda": "inf",
+    "n_groups": 12
+   },
+   "top-1 + CRC @ alpha=0.2": {
+    "harness_lambda": 0.08068528194400537,
+    "gate_lambda": 0.08068528194400537,
+    "n_groups": 12
+   }
+  },
+  "fixed_resplits": {
+   "0.1": {
+    "twin (top-1 evidence, fixed)": {
+     "n": 200,
+     "unsafe_mean": 0.10868055555555556,
+     "unsafe_sd": 0.042388140283909546,
+     "ask_mean": 0.7558333333333332,
+     "safe_auto_mean": 0.1354861111111111,
+     "frac_above_alpha": 0.555
+    }
+   },
+   "0.2": {
+    "twin (top-1 evidence, fixed)": {
+     "n": 200,
+     "unsafe_mean": 0.10868055555555556,
+     "unsafe_sd": 0.042388140283909546,
+     "ask_mean": 0.7558333333333332,
+     "safe_auto_mean": 0.1354861111111111,
+     "frac_above_alpha": 0.005
+    }
+   }
+  },
+  "auroc_other_labels_heldout": {
+   "component-level wrong (judge fault_localization_component_identification = 0)": {
+    "twin": 0.5897435897435898,
+    "top1": 0.5518648018648019,
+    "riskgate": 0.6695804195804196
+   },
+   "not fully precise (some claimed root cause wrong)": {
+    "twin": 0.842032967032967,
+    "top1": 0.9244505494505495,
+    "riskgate": 0.864010989010989
+   }
+  },
+  "certified_at_alpha_0.2_fixed_split_test_half": {
+   "lambda": 0.08068528194400537,
+   "by_category": {
+    "feature-flag config (flagd)": {
+     "claims": 8,
+     "certified": 0,
+     "certified_unsafe": 0
+    },
+    "injected fault (chaos-mesh object)": {
+     "claims": 16,
+     "certified": 4,
+     "certified_unsafe": 0
+    },
+    "other infrastructure (namespace, HPA, network policy)": {
+     "claims": 2,
+     "certified": 0,
+     "certified_unsafe": 0
+    },
+    "workload (deployment/pod)": {
+     "claims": 5,
+     "certified": 3,
+     "certified_unsafe": 0
+    }
+   }
+  }
+ },
+ "examples": [
+  {
+   "run": "Scenario-22/2",
+   "claim": [
+    "otel-demo/StressChaos/otel-demo-ad-memory-stress"
+   ],
+   "judge_correct": true,
+   "gt_category": "injected fault (chaos-mesh object)",
+   "score": 4.080471895621705,
+   "hypotheses": [
+    {
+     "key": "inject:otel-demo-ad-memory-stress",
+     "r": 0.0,
+     "class": "inject",
+     "signals": 4
+    },
+    {
+     "key": "unobserved",
+     "r": 4.08,
+     "class": "none",
+     "signals": 0
+    }
+   ]
+  },
+  {
+   "run": "Scenario-21/3",
+   "claim": [
+    "otel-demo/Pod/valkey-cart-58df56c79c-4cvft",
+    "otel-demo/Deployment/valkey-cart"
+   ],
+   "judge_correct": false,
+   "gt_category": "injected fault (chaos-mesh object)",
+   "score": 3.1319528664807628,
+   "hypotheses": [
+    {
+     "key": "workload:valkey-cart",
+     "r": 0.0,
+     "class": "fault",
+     "signals": 13
+    },
+    {
+     "key": "unobserved",
+     "r": 3.132,
+     "class": "none",
+     "signals": 0
+    }
+   ]
+  },
+  {
+   "run": "Scenario-1/1",
+   "claim": [
+    "otel-demo/Deployment/cart"
+   ],
+   "judge_correct": false,
+   "gt_category": "feature-flag config (flagd)",
+   "score": "-inf",
+   "hypotheses": [
+    {
+     "key": "unobserved",
+     "r": 0.0,
+     "class": "none",
+     "signals": 0
+    }
+   ]
+  }
+ ],
+ "paper_summary": {
+  "n_decisions": "85 root-cause claims (105 runs, 35 scenarios); gate: 59 held-out claims in 24 scenarios",
+  "text": "GPT-OSS-120B's root-cause claim was right in 15/85 runs (17.6\\%), and runs that agreed with another run were not more often right (18.5\\% vs 17.5\\%); an LLM-free evidence-gap score separates right from wrong claims (held-out AUROC 0.90), but with 12 calibration scenarios CRC certifies nothing on the fixed split at $\\alpha=10\\%$ (3.8\\% auto-approved on average over re-splits) and at $\\alpha=20\\%$ reaches 10.8\\% $\\pm$ 8.3\\% unsafe with 13.5\\% auto-approved (base: 85.4\\% unsafe)."
+ }
+}
