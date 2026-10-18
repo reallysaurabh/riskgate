@@ -4,7 +4,7 @@ description: Gate an AI agent's risky tool calls (refunds, payments, deletes, sc
 license: Apache-2.0
 compatibility: Python 3.10+ and network access to install the riskgate package from PyPI (pip install --pre riskgate).
 metadata:
-  version: "1.0.0rc7"
+  version: "1.0.0rc8"
   repository: https://github.com/reallysaurabh/riskgate
 ---
 

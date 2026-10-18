@@ -5,6 +5,10 @@ The calibration artefact schema is versioned separately (`riskgate.calibration/v
 
 ## [Unreleased]
 
+## [1.0.0rc8] — 2026-10-18 (release candidate)
+
+Metadata-only release (no code changes): the PyPI *Homepage* is the RiskGate website, https://riskgate-phi.vercel.app/; *Documentation* stays https://reallysaurabh.github.io/riskgate/. The docs site header links the website.
+
 ## [1.0.0rc7] — 2026-10-18 (release candidate)
 
 Documentation-only release: no code changes since 1.0.0rc6.

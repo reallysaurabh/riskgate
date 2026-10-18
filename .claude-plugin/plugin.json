@@ -1,10 +1,10 @@
 {
   "name": "riskgate",
   "displayName": "riskgate",
-  "version": "1.0.0-rc7",
+  "version": "1.0.0-rc8",
   "description": "Skills to gate risky agent tool calls with riskgate (certify, reject, probe or ask) and to build a calibrated gate from agent traces plus outcome labels.",
   "author": {"name": "Saurabh Gupta", "url": "https://github.com/reallysaurabh"},
-  "homepage": "https://github.com/reallysaurabh/riskgate",
+  "homepage": "https://riskgate-phi.vercel.app/",
   "repository": "https://github.com/reallysaurabh/riskgate",
   "license": "Apache-2.0",
   "keywords": ["guardrails", "agent-safety", "conformal-prediction", "risk-control", "mcp", "human-in-the-loop"]

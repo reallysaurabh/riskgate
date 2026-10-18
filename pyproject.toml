@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "riskgate"
-version = "1.0.0rc7"
+version = "1.0.0rc8"
 description = "Certify, reject or ask: distribution-free risk control for the actions of LLM agents"
 readme = "README.md"
 authors = [{ name = "Saurabh Gupta", email = "saurabhgupta3012@gmail.com" }]
@@ -47,7 +47,7 @@ docs = ["mkdocs-material>=9.5", "markdown-callouts>=0.4"]
 riskgate = "riskgate.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/reallysaurabh/riskgate"
+Homepage = "https://riskgate-phi.vercel.app/"
 Repository = "https://github.com/reallysaurabh/riskgate"
 Documentation = "https://reallysaurabh.github.io/riskgate/"
 Changelog = "https://github.com/reallysaurabh/riskgate/blob/main/CHANGELOG.md"

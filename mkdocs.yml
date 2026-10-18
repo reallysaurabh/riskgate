@@ -62,6 +62,16 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
 
+extra:
+  homepage: https://riskgate-phi.vercel.app/
+  social:
+    - icon: material/web
+      link: https://riskgate-phi.vercel.app/
+      name: RiskGate website
+    - icon: fontawesome/brands/github
+      link: https://github.com/reallysaurabh/riskgate
+      name: GitHub
+
 extra_javascript:
   - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js   # renders the $...$ / $$...$$ math of SPEC.md and calibration.md
 

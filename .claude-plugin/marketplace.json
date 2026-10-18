@@ -8,7 +8,7 @@
       "name": "riskgate",
       "source": "./",
       "description": "Skills to gate risky agent tool calls with riskgate, and to build a calibrated gate from agent traces plus outcome labels.",
-      "version": "1.0.0-rc7",
+      "version": "1.0.0-rc8",
       "category": "security",
       "tags": ["guardrails", "agent-safety", "conformal-prediction", "risk-control", "mcp"]
     }

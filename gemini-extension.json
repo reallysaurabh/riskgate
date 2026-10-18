@@ -1,5 +1,5 @@
 {
   "name": "riskgate",
-  "version": "1.0.0-rc7",
+  "version": "1.0.0-rc8",
   "description": "Skills to gate risky agent tool calls with riskgate (certify, reject, probe or ask) and to build a calibrated gate from agent traces plus outcome labels."
 }
