@@ -29,6 +29,24 @@ jobs:
           /tmp/smoke/bin/python -c "import riskgate, sys; assert not {'pandas', 'scipy', 'mcp'} & set(sys.modules)"
       - uses: actions/upload-artifact@v4
         with: {name: dist, path: dist/}
+      - name: Agent skill zips (claude.ai upload format, skill folder at the zip root)
+        run: |
+          mkdir -p skill-zips
+          for d in skills/*/; do n=$(basename "$d"); (cd skills && zip -qr "../skill-zips/$n.zip" "$n" -x '*/__pycache__/*'); done
+          ls -l skill-zips
+      - uses: actions/upload-artifact@v4
+        with: {name: skill-zips, path: skill-zips/}
+
+  skills-on-release:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: {contents: write}
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {name: skill-zips, path: skill-zips/}
+      - run: gh release upload "$GITHUB_REF_NAME" skill-zips/*.zip --clobber --repo "$GITHUB_REPOSITORY"
+        env: {GH_TOKEN: "${{ github.token }}"}
 
   testpypi:
     if: github.event_name == 'workflow_dispatch'

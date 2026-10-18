@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: pip install -e ".[dev,mcp,langgraph,adk,openai-agents]"
+      - run: pip install -e ".[dev,mcp,langgraph,adk,openai-agents,claude-agent-sdk]"
       - run: pytest -q tests/contract
       - run: |
           for f in langgraph_agent adk_agent openai_agents_agent mcp_proxy_demo; do

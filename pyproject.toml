@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "riskgate"
-version = "1.0.0rc4"
+version = "1.0.0rc5"
 description = "Certify, reject or ask: distribution-free risk control for the actions of LLM agents"
 readme = "README.md"
 authors = [{ name = "Saurabh Gupta", email = "saurabhgupta3012@gmail.com" }]
@@ -40,6 +40,7 @@ mcp = ["mcp>=2.3,<3"]
 langgraph = ["langgraph>=1.2", "langgraph-prebuilt>=1.1", "langchain-core>=1.6"]
 adk = ["google-adk>=2.11"]
 openai-agents = ["openai-agents>=0.23"]
+claude-agent-sdk = ["claude-agent-sdk>=0.2.168"]
 docs = ["mkdocs-material>=9.5", "markdown-callouts>=0.4"]
 
 [project.scripts]

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "riskgate",
+  "description": "Calibrated certify / reject / probe / ask checks for the actions of AI agents.",
+  "owner": {"name": "Saurabh Gupta", "url": "https://github.com/reallysaurabh"},
+  "plugins": [
+    {
+      "name": "riskgate",
+      "source": "./",
+      "description": "Skills to gate risky agent tool calls with riskgate, and to build a calibrated gate from agent traces plus outcome labels.",
+      "version": "1.0.0-rc5",
+      "category": "security",
+      "tags": ["guardrails", "agent-safety", "conformal-prediction", "risk-control", "mcp"]
+    }
+  ]
+}

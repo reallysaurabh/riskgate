@@ -34,7 +34,8 @@ past or simulated situations, it can say *"when I say safe, I am wrong at most 5
 | see the use cases of the RiskGate site | [Use cases](use_cases.md) |
 | know exactly what is guaranteed | [Calibration & guarantees](calibration.md) |
 | run it in production | [Operations](operations.md) · [Configuration](configuration.md) · [CLI](cli.md) |
-| use it with LangGraph, ADK, OpenAI Agents SDK or MCP | [Integrations](integrations.md) |
+| use it with LangGraph, ADK, OpenAI Agents SDK, the Claude Agent SDK or MCP | [Integrations](integrations.md) |
+| try it from Claude, Gemini CLI or Codex with agent skills | [Agent skills](agent_skills.md) |
 | look up a class or parameter | [API reference](api.md) |
 | see the evidence (simulated domains) | [Results](results.md) |
 

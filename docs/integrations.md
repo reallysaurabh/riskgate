@@ -12,6 +12,7 @@ fake/scripted models and never call an LLM API or the network.*
 | **Google ADK** | google-adk 2.11.0 (google-genai 2.29.0) | `LlmAgent.before_tool_callback`; Runner plugins | `adk_before_tool_callback`, `adk_plugin` | verified |
 | **LangGraph** | langgraph 1.2.12, langgraph-prebuilt 1.1.0, langgraph-checkpoint 4.2.0, langchain-core 1.6.6 | gate node + conditional edge; `ToolNode(wrap_tool_call=...)` | `langgraph_gate_node`, `route_after_gate`, `gated_tool_node`, `langgraph_tool_wrapper`, `langgraph_async_tool_wrapper` | verified |
 | **OpenAI Agents SDK** | openai-agents 0.23.1 (openai 3.24.0) | guarded `FunctionTool`; `ToolInputGuardrail`; `needs_approval` | `guarded_function_tool`, `riskgate_tool_input_guardrail`, `riskgate_needs_approval` | verified |
+| **Claude Agent SDK** | claude-agent-sdk 0.2.168 | `PreToolUse` hook; `can_use_tool` | `pretooluse_hook`, `can_use_tool` (`riskgate.adapters.claude_agent_sdk`) | verified (types; no model) |
 | **MCP** | mcp 2.3.0 (mcp-types 2.3.0) | proxy server in front of any MCP server | `build_proxy_server`, `serve_stdio`, `python -m riskgate.adapters.mcp_proxy`, `riskgate serve-mcp` | verified |
 
 Environment of the verification run: CPython 3.12.13, pydantic 2.13.5, pytest 9.1.1 (`.venv-int`, see §8).
@@ -227,6 +228,31 @@ await serve_stdio(gate, "npx", ["-y", "@acme/plant-mcp-server"], context=snapsho
   elicitation to the downstream client; ASK via MCP elicitation (use `on_ask`); a Streamable HTTP front end
   (`build_proxy_server(...)` returns a low-level `Server`, whose `streamable_http_app()` should work but is
   untested).
+
+## 6b. Claude Agent SDK (claude-agent-sdk 0.2.168)
+
+```python
+from claude_agent_sdk import ClaudeAgentOptions, HookMatcher
+from riskgate.adapters.claude_agent_sdk import can_use_tool, pretooluse_hook
+
+options = ClaudeAgentOptions(hooks={"PreToolUse": [
+    HookMatcher(matcher="mcp__payments__.*", hooks=[pretooluse_hook(gate, context=snapshot)])]})
+# or, for apps that decide permissions in code:
+options = ClaudeAgentOptions(can_use_tool=can_use_tool(gate, context=snapshot, on_ask=ask_a_human))
+```
+
+- **The hook returns** `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": ..., "permissionDecisionReason": ...}}`:
+  - CERTIFY → no decision (normal permissions apply; `allow_on_certify=True` returns `"allow"`);
+  - REJECT and PROBE → `"deny"`, with the gate's JSON feedback as the reason;
+  - ASK → `"ask"` (the user is prompted).
+- **Why the hook is preferred:** a hook deny holds even in `bypassPermissions` mode, while `can_use_tool` does not
+  fire for auto-approved tools.
+- **Tool names:** `mcp__<server>__<tool>` is mapped to `<tool>` for the gate's action name (`name=` overrides this).
+  A failing context function gives ASK.
+- **Verified:** `tests/contract/test_claude_agent_sdk.py` checks the output keys and decision values against the
+  SDK's `PreToolUseHookSpecificOutput` type, and checks registration in `ClaudeAgentOptions`. It runs no model.
+
+Agent skills for Claude, Gemini CLI and Codex: [Agent skills](agent_skills.md).
 
 ## 7. General caveats
 

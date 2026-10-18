@@ -106,7 +106,7 @@ def build_proxy_server(gate: Any, upstream_session: Any, *,
         has_schema = output_schemas.get(tool_name) is not None
         return types.CallToolResult(content=[types.TextContent(type="text", text=json.dumps(fb))], is_error=True,
                                     structured_content=None if has_schema else fb,
-                                    meta={DECISION_META_KEY: _decision_summary(d)})
+                                    meta={DECISION_META_KEY: _decision_summary(d)})  # type: ignore[call-arg]  # pydantic alias of _meta
 
     async def forward(tool_name: str, arguments: dict, d: Decision | None, approved_by: str | None = None) -> Any:
         try:

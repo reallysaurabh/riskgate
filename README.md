@@ -16,7 +16,7 @@ agent proposes ──► riskgate ──► CERTIFY  → the tool runs
                      └── no LLM on this path · fail-closed · every decision is logged and fingerprinted
 ```
 
-> **Status: 1.0.0rc4 (release candidate), Apache-2.0.** Everything below runs locally and is tested. The three example
+> **Status: 1.0.0rc5 (release candidate), Apache-2.0.** Everything below runs locally and is tested. The three example
 > domains are **simulated** with scripted (LLM-like) agents. In addition, [`benchmarks/`](https://github.com/reallysaurabh/riskgate/tree/main/benchmarks/) replays **public
 > logs of real LLM agents** offline: τ²-bench with eight 2026 frontier models, AgentDojo prompt-injection runs of 28
 > model/defence pipelines, and ITBench. It also covers public telemetry and plant data (RCAEval, Tennessee Eastman).
@@ -152,6 +152,19 @@ gate.calibrate(history)
 print(rg.replay(gate, held_out))    # unsafe 1.5% (agent alone 88.8%) · autonomous 79.8% · asked 20.2% · probed first 72.7%
 ```
 
+## Try it from your agent (skills)
+
+riskgate ships [agent skills](https://github.com/reallysaurabh/riskgate/blob/main/docs/agent_skills.md): `riskgate` (gate a risky tool) and `riskgate-from-traces` (traces + outcomes → a calibrated gate and a replay report).
+
+```text
+/plugin marketplace add reallysaurabh/riskgate          # Claude Code
+/plugin install riskgate@riskgate
+gemini extensions install https://github.com/reallysaurabh/riskgate     # Gemini CLI
+```
+
+- **Claude apps:** upload `riskgate.zip` from the [latest release](https://github.com/reallysaurabh/riskgate/releases) under Customize → Skills.
+- **Codex and other agents:** copy `skills/*` into `.agents/skills/`.
+
 ## Works with your agent framework
 
 | Framework | Adapter | `ASK` becomes | Tested with |
@@ -160,6 +173,7 @@ print(rg.replay(gate, held_out))    # unsafe 1.5% (agent alone 88.8%) · autonom
 | LangGraph | `langgraph_gate_node`, `gated_tool_node` | `interrupt()` → `Command(resume=...)` | langgraph 1.2.12 |
 | Google ADK | `adk_before_tool_callback`, `adk_plugin` | ADK tool confirmation | google-adk 2.11.0 |
 | OpenAI Agents SDK | `guarded_function_tool`, `riskgate_tool_input_guardrail`, `riskgate_needs_approval` | SDK approval interruptions | openai-agents 0.23.1 |
+| Claude Agent SDK | `pretooluse_hook`, `can_use_tool` | hook `"ask"` (user prompted) or `on_ask` | claude-agent-sdk 0.2.168 |
 | any MCP client | `riskgate serve-mcp ... -- <upstream server>` | `isError` result with the gate's feedback | mcp 2.3.0 |
 
 Each adapter has offline contract tests (fake models, no network). See [docs/integrations.md](https://github.com/reallysaurabh/riskgate/blob/main/docs/integrations.md)
@@ -251,7 +265,7 @@ The accompanying paper is under submission; a link will be added here once it is
 
 ## Project status
 
-Release candidate `1.0.0rc4`. Implemented and tested (100+ tests including statistical validity tests,
+Release candidate `1.0.0rc5`. Implemented and tested (100+ tests including statistical validity tests,
 fuzzed fail-closed tests and framework contract tests): the core gate, both guarantee modes, high-probability and
 multi-risk calibration, weighted CRC, grouped calibration for dependent decisions, STL specifications, two-stage
 probing, drift monitoring with tighten-only adaptation, delayed outcomes and recalibration, signed artefacts, audit and
@@ -277,7 +291,7 @@ proof. Treat `VOID` and `DEGRADED` seriously, and keep catastrophic or irreversi
             for the Actions of LLM Agents},
   author = {Gupta, Saurabh},
   year   = {2026},
-  note   = {Under submission; software: riskgate 1.0.0rc4}
+  note   = {Under submission; software: riskgate 1.0.0rc5}
 }
 ```
 

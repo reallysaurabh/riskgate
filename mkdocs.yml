@@ -81,6 +81,7 @@ nav:
   - Calibration & guarantees: calibration.md
   - Operations: operations.md
   - Integrations: integrations.md
+  - Agent skills: agent_skills.md
   - CLI: cli.md
   - Configuration: configuration.md
   - API reference: api.md

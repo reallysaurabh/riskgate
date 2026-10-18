@@ -5,6 +5,20 @@ The calibration artefact schema is versioned separately (`riskgate.calibration/v
 
 ## [Unreleased]
 
+## [1.0.0rc5] — 2026-10-18 (release candidate)
+
+### Added
+- **Agent skills** (`skills/`, Agent Skills standard):
+  - `riskgate`: gate a risky tool, with a runnable quickstart;
+  - `riskgate-from-traces`: traces + outcomes → a calibrated gate and a replay report, with `inspect_traces.py`.
+- **Packaging for the skills:**
+  - a Claude Code plugin and marketplace (`.claude-plugin/`; `/plugin install riskgate@riskgate`);
+  - a Gemini CLI extension (`gemini-extension.json`);
+  - claude.ai zips attached to every GitHub release.
+- **`riskgate.adapters.claude_agent_sdk`**: `pretooluse_hook` and `can_use_tool` for the Claude Agent SDK, with
+  contract tests against claude-agent-sdk 0.2.168. Extra: `riskgate[claude-agent-sdk]`.
+- **Docs:** `docs/agent_skills.md`.
+
 ## [1.0.0rc4] — 2026-10-18 (release candidate)
 
 ### Added

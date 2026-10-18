@@ -12,6 +12,7 @@ name                                                module                      
 ``riskgate_tool_input_guardrail``,
 ``riskgate_needs_approval``
 ``build_proxy_server``, ``serve_stdio``              ``riskgate.adapters.mcp_proxy``              MCP
+``pretooluse_hook``, ``can_use_tool``                ``riskgate.adapters.claude_agent_sdk``       Claude Agent SDK
 ==================================================  ===========================================  ===============
 
 Names are resolved lazily (PEP 562), so ``from riskgate.adapters import gated_tool_node`` imports only the
@@ -30,6 +31,7 @@ _EXPORTS: dict[str, str] = {
     "guarded_function_tool": "openai_agents", "riskgate_tool_input_guardrail": "openai_agents",
     "riskgate_needs_approval": "openai_agents",
     "build_proxy_server": "mcp_proxy", "serve_stdio": "mcp_proxy",
+    "pretooluse_hook": "claude_agent_sdk", "can_use_tool": "claude_agent_sdk",
 }
 
 __all__ = sorted(_EXPORTS)
