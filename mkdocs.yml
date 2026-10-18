@@ -75,6 +75,7 @@ nav:
   - Concepts: concepts.md
   - Quickstart: quickstart.md
   - End-to-end tutorial: end_to_end.md
+  - Start from your traces: from_traces.md
   - Bring your own domain: byo_domain.md
   - Use cases: use_cases.md
   - Calibration & guarantees: calibration.md

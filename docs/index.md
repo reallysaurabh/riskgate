@@ -29,7 +29,9 @@ past or simulated situations, it can say *"when I say safe, I am wrong at most 5
 | understand the idea | [Concepts](concepts.md) |
 | run something in five minutes | [Quickstart](quickstart.md) |
 | see a realistic lifecycle with real output | [End-to-end tutorial](end_to_end.md) |
+| start from your agent's traces and outcome labels (no simulator) | [Start from your traces](from_traces.md) |
 | plug in your own simulator and diagnoser | [Bring your own domain](byo_domain.md) |
+| see the use cases of the RiskGate site | [Use cases](use_cases.md) |
 | know exactly what is guaranteed | [Calibration & guarantees](calibration.md) |
 | run it in production | [Operations](operations.md) · [Configuration](configuration.md) · [CLI](cli.md) |
 | use it with LangGraph, ADK, OpenAI Agents SDK or MCP | [Integrations](integrations.md) |

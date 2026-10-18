@@ -34,7 +34,7 @@ tables cost efficiency (more ASK), not validity.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable, Collection, Mapping
+from collections.abc import Callable, Collection, Mapping, Sequence
 from typing import Any
 
 from .gate import CallableModel
@@ -105,6 +105,45 @@ class DiscreteWorlds:
                                             {str(k): q for k, q in r.items()}) for w, r in t.items()} for f, t in
                                             self.evidence.items()}, "floor": self.floor, "max": self.max_score,
                                             "read": callable_digest(read) if read is not read_field else None}, 12)
+
+    @classmethod
+    def fit(cls, contexts: Sequence[Mapping[str, Any]], worlds: Sequence[str], *, fields: Sequence[str] | None = None,
+            smoothing: float = 1.0, **kw: Any) -> DiscreteWorlds:
+        """Learn the prior and the evidence tables from labelled examples (counts with additive smoothing).
+
+        contexts  one mapping of observed (categorical or boolean) fields per example; None = not observed
+        worlds    the world each example turned out to be in (from the outcome signal, not from a judge)
+        fields    which fields to use (default: every field seen)
+
+        Fit on data that is disjoint from calibration (e.g. ``riskgate.traces.SealedSplit.fit``) and freeze it: the
+        fitted tables are part of the fingerprint, and fitting on the calibration episodes breaks exchangeability.
+        """
+        if len(contexts) != len(worlds) or not contexts:
+            raise ValueError("fit needs one world label per context, and at least one example")
+        if not (math.isfinite(smoothing) and smoothing > 0.0):
+            raise ValueError(f"smoothing must be positive and finite, got {smoothing}")
+        names = sorted(dict.fromkeys(str(w) for w in worlds))
+        counts = {w: sum(1 for x in worlds if str(x) == w) for w in names}
+        prior = {w: (counts[w] + smoothing) / (len(worlds) + smoothing * len(names)) for w in names}
+        use = list(fields) if fields is not None else sorted({k for c in contexts for k in c})
+        evidence: dict[str, dict[str, Any]] = {}
+        for f in use:
+            seen = [(c.get(f), str(w)) for c, w in zip(contexts, worlds) if c.get(f) is not None]
+            if not seen:
+                continue
+            values = sorted({v for v, _ in seen}, key=repr)
+            if all(isinstance(v, bool) for v in values):
+                evidence[f] = {w: (sum(1 for v, x in seen if x == w and v) + smoothing) /
+                               (sum(1 for _, x in seen if x == w) + 2 * smoothing) for w in names}
+                continue
+            table: dict[str, dict[Any, float]] = {}
+            for w in names:
+                n_w = sum(1 for _, x in seen if x == w)
+                table[w] = {v: (sum(1 for vv, x in seen if x == w and vv == v) + smoothing) /
+                            (n_w + smoothing * len(values)) for v in values}
+            evidence[f] = table
+        kw.setdefault("name", "fitted-worlds")
+        return cls(prior, evidence, **kw)
 
     def _lp(self, p: float) -> float:
         return math.log(max(p, self.floor))

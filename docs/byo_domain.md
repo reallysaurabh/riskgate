@@ -1,5 +1,10 @@
 # Bring your own domain
 
+> [!TIP]
+> Have agent traces and outcome labels but no simulator? Start with [Start from your traces](from_traces.md): it learns
+> the plausible worlds from the traces and calibrates a gate without any of the code below. Come back here when you
+> want ranked alternatives, probes with a consequence model, or a digital twin.
+
 This guide walks through connecting riskgate to a new domain, step by step. Each step comes with a template you can copy. The running example is a **reservoir operator agent**: every hour it proposes a water release for the next 12 hours, and riskgate certifies, probes, rejects or asks.
 
 | You provide | Interface | Step |

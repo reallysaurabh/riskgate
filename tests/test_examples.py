@@ -37,7 +37,7 @@ def test_use_case_examples_run_and_hold_alpha(capsys):
     import re
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "examples" / "use_cases"))
-    for name in ("payments_upi", "missing_item_refund", "card_dispute", "idle_vm_cleanup", "prompt_injection"):
+    for name in ("payments_upi", "missing_item_refund", "card_dispute", "idle_vm_cleanup", "prompt_injection", "from_traces"):
         importlib.import_module(name).main()
         out = capsys.readouterr().out
         m = re.search(r"\[valid\]: unsafe ([0-9.]+)%", out)

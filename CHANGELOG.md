@@ -5,6 +5,20 @@ The calibration artefact schema is versioned separately (`riskgate.calibration/v
 
 ## [Unreleased]
 
+## [1.0.0rc4] — 2026-10-18 (release candidate)
+
+### Added
+- **`riskgate.traces`**: onboarding from agent traces plus an outcome signal, without a simulator.
+  - `load_traces` (JSONL runs with tool calls and read outputs) and `load_outcomes` (CSV / JSONL joined by trace id).
+    Label sources that name an LLM judge or an approval are refused.
+  - `infer_tool_kinds`: read vs write; unknown tools count as writes.
+  - `decision_points`: one labelled write each, with a no-look-ahead `TraceContext`; unlabelled and conflicting writes
+    are counted, not guessed.
+  - `seal_split`: group-disjoint fit / cal / eval with a content digest.
+- **`DiscreteWorlds.fit`**: learn the prior and evidence tables from labelled examples (use the fit split).
+- **Docs**: `docs/from_traces.md`, including the three rules that keep the guarantee. Example
+  `examples/use_cases/from_traces.py`.
+
 ## [1.0.0rc3] — 2026-10-18 (release candidate)
 
 Building blocks for the use cases on the RiskGate site (map of all sixteen: `docs/use_cases.md`).

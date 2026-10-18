@@ -16,7 +16,7 @@ agent proposes ──► riskgate ──► CERTIFY  → the tool runs
                      └── no LLM on this path · fail-closed · every decision is logged and fingerprinted
 ```
 
-> **Status: 1.0.0rc3 (release candidate), Apache-2.0.** Everything below runs locally and is tested. The three example
+> **Status: 1.0.0rc4 (release candidate), Apache-2.0.** Everything below runs locally and is tested. The three example
 > domains are **simulated** with scripted (LLM-like) agents. In addition, [`benchmarks/`](https://github.com/reallysaurabh/riskgate/tree/main/benchmarks/) replays **public
 > logs of real LLM agents** offline: τ²-bench with eight 2026 frontier models, AgentDojo prompt-injection runs of 28
 > model/defence pipelines, and ITBench. It also covers public telemetry and plant data (RCAEval, Tennessee Eastman).
@@ -140,6 +140,7 @@ Building blocks for the decisions on the [RiskGate site](https://github.com/real
 | `riskgate.provenance` | instructions planted in files, e-mails and web pages (prompt injection) | `prompt_injection.py` |
 | `rg.replay`, `rg.resplit`, `rg.sweep` | run labelled history through a gate; validity over re-splits; the error budget as a dial | all of them |
 | `riskgate.rules` | `needs_person`, `never`, `amount_above`, `irreversible` | `card_dispute.py`, `payments_upi.py` |
+| `riskgate.traces` | onboarding from agent traces + an outcome signal: tool kinds, labelled decision points, a sealed fit / cal / eval split, `DiscreteWorlds.fit` | `from_traces.py` |
 
 ```python
 table = rg.OutcomeTable({"confirm_order": ["paid_late"], "reply_auto_reversal": ["failed"], "issue_refund": ["paid_twice"]},
@@ -234,6 +235,7 @@ What the real logs show:
 | [Concepts](https://github.com/reallysaurabh/riskgate/blob/main/docs/concepts.md) | the picture, the verdicts, the components |
 | [Quickstart](https://github.com/reallysaurabh/riskgate/blob/main/docs/quickstart.md) | the tank example, step by step |
 | [End-to-end tutorial](https://github.com/reallysaurabh/riskgate/blob/main/docs/end_to_end.md) | an SRE agent's full lifecycle, with real output |
+| [Start from your traces](https://github.com/reallysaurabh/riskgate/blob/main/docs/from_traces.md) | traces + outcome labels → a calibrated gate, without writing a simulator |
 | [Bring your own domain](https://github.com/reallysaurabh/riskgate/blob/main/docs/byo_domain.md) | templates for your simulator, diagnoser and spec |
 | [Use cases](https://github.com/reallysaurabh/riskgate/blob/main/docs/use_cases.md) | the sixteen stories of the RiskGate site, mapped to building blocks and scripts |
 | [Calibration & guarantees](https://github.com/reallysaurabh/riskgate/blob/main/docs/calibration.md) | exactly what is promised, and how |
@@ -249,7 +251,7 @@ The accompanying paper is under submission; a link will be added here once it is
 
 ## Project status
 
-Release candidate `1.0.0rc3`. Implemented and tested (100+ tests including statistical validity tests,
+Release candidate `1.0.0rc4`. Implemented and tested (100+ tests including statistical validity tests,
 fuzzed fail-closed tests and framework contract tests): the core gate, both guarantee modes, high-probability and
 multi-risk calibration, weighted CRC, grouped calibration for dependent decisions, STL specifications, two-stage
 probing, drift monitoring with tighten-only adaptation, delayed outcomes and recalibration, signed artefacts, audit and
@@ -275,7 +277,7 @@ proof. Treat `VOID` and `DEGRADED` seriously, and keep catastrophic or irreversi
             for the Actions of LLM Agents},
   author = {Gupta, Saurabh},
   year   = {2026},
-  note   = {Under submission; software: riskgate 1.0.0rc3}
+  note   = {Under submission; software: riskgate 1.0.0rc4}
 }
 ```
 

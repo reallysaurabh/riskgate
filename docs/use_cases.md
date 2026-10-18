@@ -17,6 +17,7 @@ runnable script.
 | [`riskgate.worlds`](#discrete-worlds) | `DiscreteWorlds` (a naive-Bayes hypothesis provider over a few named worlds), `OutcomeTable` (which action is safe in which world, and what each read-only lookup reveals), `nearest_violation` and `unsafe_mass` score functions | the decision hinges on one hidden fact with a handful of values: *was it paid, refunded, a hold, dormant?* |
 | [`riskgate.provenance`](#provenance) | `AgentContext`, `ToolOutput`, `ProvenanceWorlds`, `ProvenanceModel`, `instruction_score`, `entities` | instructions hidden in files, e-mails or web pages must not be able to move money (prompt injection) |
 | [`riskgate.replay`](#replay) | `replay`, `resplit`, `sweep`, `ReplayReport` | onboarding: run labelled history through a gate; validity over re-splits; the error budget as a dial |
+| [`riskgate.traces`](from_traces.md) | `load_traces`, `load_outcomes`, `infer_tool_kinds`, `decision_points`, `seal_split`, `DiscreteWorlds.fit` | onboarding from agent traces plus an outcome signal, with no simulator |
 | [`riskgate.rules`](#rules) | `needs_person`, `never`, `amount_above`, `irreversible` | deterministic policy: labels on people go to a person, refunds above a limit need a supervisor |
 
 None of them changes the guarantee: it still comes from calibration on labelled episodes. Wrong tables or a weak
