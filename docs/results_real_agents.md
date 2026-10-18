@@ -16,6 +16,7 @@ Tasks (scenarios, incidents) are the exchangeable units, so calibration and test
 calibration runs on task-mean losses (`Gate.calibrate(groups=...)`). The guarantee then bounds the expected share of a
 new task's decisions that are certified and unsafe. Hypothesis families and weights are frozen on a named development
 subset before the held-out logs are evaluated. Baselines:
+
 - no checker;
 - the domain's own deterministic rule;
 - top-1 hypothesis + CRC;
@@ -38,6 +39,7 @@ providers' terms). 9,759 database writes, each replayed in the benchmark's own e
 | Exploratory: readings from other agents' runs, AUROC / ask at α = 10% | 0.92–0.96 / 1–5% | 0.97–1.00 / 11–34% |
 
 Key observations:
+
 - **Validity held for every agent.**
 - **Top-1 + CRC asks about everything.** This is Proposition 1 seen on real logs.
 - **The policy's "explicit yes" rule removes almost nothing.** Task-averaged unsafe goes only from 13.8% to 13.3%.

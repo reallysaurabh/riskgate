@@ -44,6 +44,7 @@ The runnable version, with simulated traces, is
 > are what keep it a bound on real harm.
 
 **1. Outcomes, not opinions.**
+
 - **The problem.** A wrong refund usually returns `200 OK`, and the customer often says "thanks". In the public
   τ²-bench logs, 355 of 363 wrong retail writes came right after the customer said "yes". The trace alone rarely
   shows harm.
@@ -54,6 +55,7 @@ The runnable version, with simulated traces, is
   `decision_points` leaves out unlabelled writes and counts them, rather than guessing.
 
 **2. Learn on one split, calibrate on another.**
+
 - **What counts as learnt.** Anything taken from the traces: which worlds exist, their probabilities, feature
   weights, which read tool to use as a probe, the limits of rules.
 - **Where to learn it.** On `split.fit` only. Freeze it before calibration touches `split.cal`, and keep
@@ -63,6 +65,7 @@ The runnable version, with simulated traces, is
   names exactly which data a threshold was calibrated on.
 
 **3. Count runs, not tool calls.**
+
 - **The problem.** Calls inside one run, or several runs of one customer case, are dependent.
 - **What to do.** `seal_split` splits by `group`, and `calibrate(groups=...)` controls the share of a new group's
   decisions that are certified and unsafe.

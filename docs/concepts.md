@@ -11,6 +11,7 @@ An AI agent wants to do something consequential: scale a service, refund a custo
 3. **Is it safe in the worst plausible case, by a margin we have learned to trust?** Each predicted outcome is scored against the safety rules: positive means safe, negative means a violation. This is the **spec** and its **margin**. The action's score is its worst margin across plausible hypotheses. It is certified only if the score clears a **threshold calibrated on past incidents**, so that unsafe certifications happen at most α of the time.
 
 If the action is not certified, riskgate does one of three things:
+
 - tells the agent why (**REJECT**: unsafe under every explanation);
 - suggests a harmless check that would settle the question (**PROBE**);
 - hands the decision to a person (**ASK**).

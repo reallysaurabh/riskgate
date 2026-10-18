@@ -31,6 +31,7 @@ for an operator-chosen $\alpha$, **regardless of how good the consequence model 
 ### 1.2 Who it is for
 
 Teams whose agents take **consequential actions in environments that can be simulated, dry-run or replayed**:
+
 - process plants and energy systems (digital twins);
 - infrastructure operations (`kubectl --dry-run`, `terraform plan`, capacity models);
 - transactional software (dry-runs on database clones, payment sandboxes);
@@ -284,6 +285,7 @@ Requiring a single probe to separate *every* pair, as the first prototype did, a
 Calibration scores episodes with the deployed code path: hard-rule screening, the OOD check and fail-closed handling of evaluation errors (counted in `diagnostics["evaluation_failures"]`). Probing is calibrated only for `guarantee="expectation"` without `extra_losses` or `weights`; otherwise `diagnostics["probing_disabled"]` explains why.
 
 **Loss modes:**
+
 - `agnostic`: `L(λ) = max over candidates with s ≥ λ of loss`. Valid for **any doer** that only executes certified actions. Needs a label for every candidate; unlabeled candidates count as unsafe.
 - `policy`: `L(λ) = loss of the doer's first certified action`, made monotone by its upper envelope `sup_{λ′≥λ} L(λ′)`. Tighter, but valid only for the calibrated doer (prompt, model, temperature). Real-valued extra losses in [0, 1] are kept as is.
 
@@ -404,6 +406,7 @@ Let episodes $Z_1,\dots,Z_{n+1}$ be exchangeable, where $Z_i$ = (context, ranked
 5. **Weighted.** With a correct likelihood ratio w(x) between deployment and calibration contexts, weighted CRC controls the deployment risk (Tibshirani et al., 2019).
 
 **What is *not* guaranteed:**
+
 - conditional (per-context) risk;
 - the realised risk of one particular calibrated gate in expectation mode (use high-probability mode);
 - validity under distribution shift (the monitor detects it with delay and only tightens);

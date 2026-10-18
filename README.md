@@ -59,7 +59,7 @@ pip install --pre riskgate              # release candidate; extras: yaml, otel,
 pip install -e ".[dev]"                 # from a clone
 ```
 
-Python ≥ 3.10. [PyPI](https://pypi.org/project/riskgate/) · [GitHub](https://github.com/reallysaurabh/riskgate) (a ⭐ helps others find it).
+Python ≥ 3.10. [Documentation](https://reallysaurabh.github.io/riskgate/) · [PyPI](https://pypi.org/project/riskgate/) · [GitHub](https://github.com/reallysaurabh/riskgate) (a ⭐ helps others find it).
 
 ## Thirty-second example
 
@@ -244,6 +244,8 @@ What the real logs show:
   δ' = 0.1 needs about 45 loss-free tasks before it certifies anything.
 
 ## Documentation
+
+The full documentation is at **https://reallysaurabh.github.io/riskgate/** (searchable; built from `docs/`).
 
 | Page | For |
 |---|---|

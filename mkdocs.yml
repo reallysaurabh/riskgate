@@ -2,6 +2,7 @@ site_name: riskgate
 site_description: "Certify, reject or ask: distribution-free risk control for the actions of LLM agents"
 site_author: Saurabh Gupta
 copyright: Copyright &copy; 2026 Saurabh Gupta · Apache-2.0
+site_url: https://reallysaurabh.github.io/riskgate/
 repo_url: https://github.com/reallysaurabh/riskgate
 repo_name: reallysaurabh/riskgate
 edit_uri: edit/main/docs/

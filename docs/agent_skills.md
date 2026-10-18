@@ -11,6 +11,7 @@ unsupervised?"*
 | `riskgate-from-traces` | Takes your agent's traces plus an outcome signal. It checks the data (`scripts/inspect_traces.py`), seals a fit / cal / eval split, learns the worlds on fit only, calibrates once, and writes an honest replay report. See [Start from your traces](from_traces.md). |
 
 Both skills tell the agent the rules that protect the guarantee:
+
 - never label outcomes with an LLM or with approvals;
 - hold out data, and calibrate once;
 - count groups, not tool calls;

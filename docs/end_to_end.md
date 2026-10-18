@@ -88,6 +88,7 @@ riskgate calibration 9fe91033e2d6  (schema riskgate.calibration/v1, ...)
 ```
 
 How to read it:
+
 - **360 incidents** fixed the plausible-set threshold τ (the true cause is kept in about 95% of cases; on average
   3.9 causes remain plausible). The other **840** chose the thresholds. Keeping these apart is what makes the
   guarantee exact.
@@ -191,6 +192,7 @@ The database is moved to a smaller instance class (−40% capacity). Nobody tell
 ```
 
 This stage shows a limitation, on purpose:
+
 - **The guarantee no longer applies** once deployment stops looking like calibration. Over these 300 incidents
   8.3% of incidents ended with a certified action that breached the SLO, above α = 5%.
 - **Detection takes time.** The monitor tests whether the gate's *inputs* (the best robust score per decision) still

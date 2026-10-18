@@ -97,6 +97,7 @@ cal = gate.calibrate(episodes, groups=[ep.meta["task_id"] for ep in episodes])
 ```
 
 What happens:
+
 - The τ split is drawn by group.
 - Conformal risk control (or Learn-then-Test) runs on each group's **mean** loss, L_g(λ) = (1/|g|) Σ_{i∈g} L_i(λ).
   Each L_g is still non-increasing in λ, bounded by 1 and equal to 0 at +∞, so the usual argument applies to groups.
@@ -124,6 +125,7 @@ threshold computed by `Gate.calibrate(groups=...)`.
 ## The plausible set and the OOD guard
 
 A share `tau_fraction` (default 30%) of the labelled episodes is held out to set:
+
 - τ, the conformal (1 − δ) quantile of the *true family's* best score, so that the true family is kept with probability ≥ 1 − δ;
 - τ_ood, the 99% quantile of the best score. Evidence that fits worse than anything seen in calibration yields `ASK`.
 
@@ -134,6 +136,7 @@ The split matters. If the same episodes chose τ and λ, the score would depend 
 ## Probing (two-stage calibration)
 
 With probes configured and episodes carrying `after_probe`:
+
 1. Split the risk-control episodes into A and B (`probe_split`, default 0.5).
 2. λ₁ is CRC on A at level ρα (`probe_share` ρ, default 0.6). This bounds the risk of certifying *before* any probe.
 3. λ₂ is CRC on **all** of B at level (1 − ρ)α. An episode's stage-2 loss is 0 if stage 1 would certify it or would
