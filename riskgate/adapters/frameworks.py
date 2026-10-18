@@ -31,7 +31,7 @@ from collections.abc import Callable, Collection, Mapping, Sequence
 from typing import Any, Literal
 
 from ..types import Action, Decision, Verdict
-from .tool import _feedback
+from .tool import _agent_reason, _feedback
 
 __all__ = [
     "adk_before_tool_callback", "adk_plugin", "gated_tool_node", "langgraph_async_tool_wrapper",
@@ -62,7 +62,8 @@ def _check(gate: Any, action: Action, context: Callable[..., Any], *ctx_args: An
         ctx = _call_context(context, *ctx_args)
     except Exception as exc:  # noqa: BLE001 - rule R3: fail closed
         return Decision(Verdict.ASK, action, reason=f"fail-closed: could not build the gate context: "
-                                                    f"{type(exc).__name__}: {exc}")
+                                                    f"{type(exc).__name__}: {exc}",
+                        agent_reason="fail-closed: the gate could not evaluate this action")
     return gate.check(action, ctx)
 
 
@@ -79,8 +80,8 @@ def _safe(obj: Any) -> Any:
     return str(obj)
 
 
-def _feedback_json(d: Decision) -> str:
-    return json.dumps(_safe(_feedback(d)))
+def _feedback_json(d: Decision, declined: bool = False) -> str:
+    return json.dumps(_safe(_feedback(d, declined=declined)))
 
 
 def _approved(answer: Any) -> bool:
@@ -117,13 +118,13 @@ def _adk_decide(gate: Any, tool: Any, args: Mapping[str, Any] | None, tool_conte
         return None
     if d.verdict is Verdict.ASK:
         if on_ask is not None:
-            return None if on_ask(d) else _feedback(d)
+            return None if on_ask(d) else _feedback(d, declined=True)
         if confirm and tool_context is not None and hasattr(tool_context, "request_confirmation"):
             confirmation = getattr(tool_context, "tool_confirmation", None)
             if confirmation is None:          # first pass: pause the run and ask the user (ADK HITL)
                 try:
                     tool_context.request_confirmation(
-                        hint=f"riskgate cannot certify {name}({json.dumps(_safe(dict(args or {})))}): {d.reason}. "
+                        hint=f"riskgate cannot certify {name}({json.dumps(_safe(dict(args or {})))}): {_agent_reason(d)}. "
                              "Approve or reject this tool call.",
                         payload={"riskgate": _safe(_feedback(d))})
                 except Exception:  # noqa: BLE001 - e.g. no function_call_id: fall back to feedback
@@ -134,7 +135,7 @@ def _adk_decide(gate: Any, tool: Any, args: Mapping[str, Any] | None, tool_conte
                 return _feedback(d)
             if getattr(confirmation, "confirmed", False):
                 return None                   # the user approved this call
-            return {**_feedback(d), "status": "rejected", "reason": f"declined by the user: {d.reason}"}
+            return _feedback(d, declined=True)
     return _feedback(d)
 
 
@@ -146,11 +147,13 @@ def adk_before_tool_callback(gate: Any, *, context: Callable[..., Any] = lambda 
     Args:
         gate: a calibrated ``riskgate.Gate`` (anything with ``check(action, context)``).
         context: ``context(tool_context)`` (or ``context()``) returning the gate context.
-        on_ask: optional synchronous approval hook for ASK; True runs the tool.
+        on_ask: optional synchronous approval hook for ASK; True runs the tool, False returns
+            ``{"status": "declined", ...}``.
         confirm: when ``on_ask`` is None, use ADK's native tool confirmation for ASK: the run pauses with an
             ``adk_request_confirmation`` function call; after the user replies ``{"confirmed": true}`` ADK re-runs
-            the call, the gate re-checks it and the tool runs. Without a confirming client the model receives
-            ``{"status": "needs_approval", ...}``.
+            the call, the gate re-checks it and the tool runs; ``{"confirmed": false}`` returns
+            ``{"status": "declined", ...}``. While the confirmation is pending (or without a confirming client) the
+            model receives ``{"status": "needs_approval", ...}``.
         passthrough: tool names that are never gated (e.g. ``{"transfer_to_agent"}``). Use sparingly.
 
     Returns ``None`` (run the tool) for CERTIFY or an approved ASK; otherwise a dict (status, reason,
@@ -228,9 +231,9 @@ def _tool_call_id(message: Any) -> str | None:
     return getattr(message, "tool_call_id", None)
 
 
-def _reply(call: Mapping[str, Any], d: Decision, like: Any, fmt: str) -> Any:
+def _reply(call: Mapping[str, Any], d: Decision, like: Any, fmt: str, declined: bool = False) -> Any:
     """Tool reply carrying the gate's feedback: a ``ToolMessage`` (status="error") or an OpenAI-style dict."""
-    content = _feedback_json(d)
+    content = _feedback_json(d, declined)
     as_dict = {"role": "tool", "tool_call_id": call["id"], "name": call["name"], "content": content}
     if fmt == "dict" or (fmt == "auto" and isinstance(like, Mapping)):
         return as_dict
@@ -245,16 +248,16 @@ def _reply(call: Mapping[str, Any], d: Decision, like: Any, fmt: str) -> Any:
 
 
 def _resolve_ask(d: Decision, call: Mapping[str, Any], interrupt_fn: Callable[[Any], Any] | None,
-                 on_ask: Callable[[Decision], bool] | None) -> bool:
-    """True if a human (interrupt) or the ``on_ask`` hook approves an ASK decision."""
+                 on_ask: Callable[[Decision], bool] | None) -> Literal["approved", "declined", "no_approver"]:
+    """How an ASK was resolved: a human (interrupt) or ``on_ask`` approved or declined it, or nobody was asked."""
     if interrupt_fn is not None:
         answer = interrupt_fn({"type": "riskgate_approval",
                                "tool_call": {"id": call["id"], "name": call["name"], "args": _safe(call["args"])},
                                "reason": d.reason, "guarantee": d.status.value, "feedback": _safe(_feedback(d))})
-        return _approved(answer)
+        return "approved" if _approved(answer) else "declined"
     if on_ask is not None:
-        return bool(on_ask(d))
-    return False
+        return "approved" if on_ask(d) else "declined"
+    return "no_approver"
 
 
 def langgraph_gate_node(gate: Any, *, context: Callable[..., Any] = lambda state: None,
@@ -304,15 +307,19 @@ def langgraph_gate_node(gate: Any, *, context: Callable[..., Any] = lambda state
             action = Action(c["name"], dict(c["args"] or {}))
             if ctx_error is not None:
                 d = Decision(Verdict.ASK, action, reason=f"fail-closed: could not build the gate context: "
-                                                         f"{type(ctx_error).__name__}: {ctx_error}")
+                                                         f"{type(ctx_error).__name__}: {ctx_error}",
+                             agent_reason="fail-closed: the gate could not evaluate this action")
             else:
                 d = gate.check(action, ctx)
             rec = _safe(d.to_dict())
-            if d.verdict is Verdict.ASK and _resolve_ask(d, c, interrupt_fn, on_ask):
+            outcome = _resolve_ask(d, c, interrupt_fn, on_ask) if d.verdict is Verdict.ASK else None
+            if outcome == "approved":
                 rec.update(verdict="certify", gate_verdict="ask", approved_by="human")
+            elif outcome == "declined":
+                rec.update(declined_by="human")
             decisions[c["id"]] = rec
             if rec["verdict"] != "certify":
-                replies.append(_reply(c, d, last, message_format))
+                replies.append(_reply(c, d, last, message_format, declined=outcome == "declined"))
         if decisions_key:
             update[decisions_key] = decisions
         if replies:
@@ -363,9 +370,10 @@ def _gate_tool_request(gate: Any, request: Any, context: Callable[..., Any],
     d = _check(gate, Action(c["name"], c["args"]), context, getattr(request, "state", None))
     if d.verdict is Verdict.CERTIFY:
         return None
-    if d.verdict is Verdict.ASK and _resolve_ask(d, c, _resolve_interrupt(interrupt), on_ask):
+    outcome = _resolve_ask(d, c, _resolve_interrupt(interrupt), on_ask) if d.verdict is Verdict.ASK else None
+    if outcome == "approved":
         return None
-    return _reply(c, d, None, "langchain")
+    return _reply(c, d, None, "langchain", declined=outcome == "declined")
 
 
 def langgraph_tool_wrapper(gate: Any, *, context: Callable[..., Any] = lambda state: None,

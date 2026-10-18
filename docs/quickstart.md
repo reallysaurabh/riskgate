@@ -17,7 +17,7 @@ class TankModel:
         return {"level": ctx["level"] + action.args["v"] - hyp.params["leak"]}
 ```
 
-In a real deployment this is your digital twin, simulator, `--dry-run`, database savepoint or learned model.
+In a real deployment this is your digital twin, simulator, `--dry-run`, a dry-run on a database clone, or a learned model.
 
 ## 2. Hypotheses: what could be going on?
 

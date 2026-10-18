@@ -19,7 +19,7 @@ Where labels come from:
 | Source | Gives labels for | Typical domains |
 |---|---|---|
 | High-fidelity simulator or digital twin | **every** candidate (counterfactual) | process plants, robotics, energy |
-| Sandbox replay (staging namespace, DB savepoint, payment test mode) | every candidate | infrastructure, transactional software |
+| Sandbox replay (staging namespace, database clone, payment test mode) | every candidate | infrastructure, transactional software |
 | Audited production logs and postmortems | executed actions only | everything else; use policy mode, or label alternatives by expert review |
 
 Unlabelled candidates are treated as **unsafe**. This is conservative and never invalidates the bound.

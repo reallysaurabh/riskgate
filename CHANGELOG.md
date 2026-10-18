@@ -5,6 +5,49 @@ The calibration artefact schema is versioned separately (`riskgate.calibration/v
 
 ## [Unreleased]
 
+## [1.0.0rc6] — 2026-10-18 (release candidate)
+
+Four fixes before the 1.0.0 API freeze. No calibration maths and no artefact schema (`riskgate.calibration/v1`)
+change, and the text of `Decision.reason` is unchanged.
+
+### Security
+- **Agent-facing feedback no longer contains robust margins or the calibrated threshold.**
+  - New `Decision.agent_reason`, a numbers-free text the agent may see; adapters send `agent_reason or reason`.
+  - `Decision.reason` is unchanged and stays in audit records, `on_ask` and approver payloads.
+  - Fail-closed decisions get a generic agent text, so exception details (paths, connection strings) stay internal.
+  - The ADK confirmation hint uses the agent text too.
+- **MCP proxy `_meta["riskgate/decision"]`** no longer carries scores, the threshold or the full reason unless
+  `expose_scores=True` (`riskgate serve-mcp --expose-scores`) is set for a trusted client.
+
+### Fixed
+- **A stale calibration no longer acts.** With `require_calibration=False`, a stale artefact (status `VOID`) no
+  longer produces `CERTIFY` or `PROBE`:
+  - such decisions are returned as `ASK`;
+  - the would-be verdict goes in `Decision.would_verdict` and the audit record;
+  - `REJECT` is unchanged.
+  - The docs no longer call this setting "shadow mode".
+
+### Changed
+- **Human declines are reported as declined.** When a human or `on_ask` says no, the agent gets
+  `{"status": "declined", ...}`. This applies in `guard`, the ADK adapter (previously `"rejected"`), the LangGraph
+  adapters, the MCP proxy and the Claude Agent SDK `can_use_tool` callback. `needs_approval` now only means that no
+  approver was reachable, or that an ADK confirmation is still pending.
+- **Every blocked-call feedback** carries `"executed": false`.
+- **New `guard(..., raise_on_ask=True)`.** With `False`, an ASK without `on_ask` returns `needs_approval` feedback
+  instead of raising. `guarded_function_tool` now uses this instead of a stand-in `on_ask=lambda d: False`, which
+  would have reported every ASK as declined.
+
+### Documentation
+- **New "Safe database dry-runs" section** (`docs/operations.md`): a savepoint on the live database is not a sandbox
+  (MySQL, MariaDB and Oracle commit DDL implicitly; PostgreSQL rollbacks still lock and write WAL; `EXPLAIN ANALYZE`
+  executes).
+- **Savepoint wording corrected** in the README, byo_domain, operations, calibration, faq, quickstart and SPEC. The
+  refunds example explains why its per-ticket in-memory SQLite savepoint is safe.
+
+### Tests
+- `tests/test_adapter_semantics.py`: the outcome-semantics table.
+- New VOID tests (certify and probe), agent-reason tests, and decline contract tests for MCP and ADK.
+
 ## [1.0.0rc5] — 2026-10-18 (release candidate)
 
 ### Added

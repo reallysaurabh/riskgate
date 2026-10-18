@@ -115,7 +115,7 @@ def test_interrupt_escalates_ask_and_resume_decides(toy_gate, state, answer, run
     if runs:
         assert executed == [ASKED] and replies["c3"].content == f"added {ASKED}"
     else:
-        assert executed == [] and json.loads(replies["c3"].content)["status"] == "needs_approval"
+        assert executed == [] and json.loads(replies["c3"].content)["status"] == "declined"
     assert out["messages"][-1].content == "done"
 
 
@@ -133,7 +133,7 @@ def test_two_asks_in_one_batch_are_reviewed_one_at_a_time(toy_gate, state):
     assert reviewed == ["a", "b"] and "__interrupt__" not in out
     replies = tool_messages(out["messages"])
     assert executed == [45.0] and replies["a"].content == "added 45.0"
-    assert json.loads(replies["b"].content)["status"] == "needs_approval"
+    assert json.loads(replies["b"].content)["status"] == "declined"
 
 
 def test_gated_tool_node_inside_create_react_agent(toy_gate, state):

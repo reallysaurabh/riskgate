@@ -16,7 +16,7 @@ agent proposes ──► riskgate ──► CERTIFY  → the tool runs
                      └── no LLM on this path · fail-closed · every decision is logged and fingerprinted
 ```
 
-> **Status: 1.0.0rc5 (release candidate), Apache-2.0.** Everything below runs locally and is tested. The three example
+> **Status: 1.0.0rc6 (release candidate), Apache-2.0.** Everything below runs locally and is tested. The three example
 > domains are **simulated** with scripted (LLM-like) agents. In addition, [`benchmarks/`](https://github.com/reallysaurabh/riskgate/tree/main/benchmarks/) replays **public
 > logs of real LLM agents** offline: τ²-bench with eight 2026 frontier models, AgentDojo prompt-injection runs of 28
 > model/defence pipelines, and ITBench. It also covers public telemetry and plant data (RCAEval, Tennessee Eastman).
@@ -43,7 +43,7 @@ or simulated situations, so it can say *"when I say 'safe', I am wrong at most 5
 
 | You provide | Example | riskgate does |
 |---|---|---|
-| a **consequence model** `predict(action, hypothesis, context)` | digital twin, queueing model, `--dry-run`, DB savepoint + rollback | evaluates every candidate under every plausible hypothesis |
+| a **consequence model** `predict(action, hypothesis, context)` | digital twin, queueing model, `--dry-run`, a database clone or read-only rewrite ([never a savepoint on production](https://github.com/reallysaurabh/riskgate/blob/main/docs/operations.md#safe-database-dry-runs)) | evaluates every candidate under every plausible hypothesis |
 | a **hypothesis provider** `hypotheses(context)` (scored) | fault diagnoser, incident classifier, intent parser | keeps the calibrated *plausible set* (true cause retained with prob. ≥ 1 − δ) |
 | a **spec** of signed margins | `Upper("p95_ms", 800)`, `Envelope("T", 340, 362)`, STL formulas | robust score = worst margin over plausible hypotheses |
 | **labelled episodes** | simulated incidents, sandbox replays, audited postmortems | conformal risk control picks the threshold λ̂ with E[unsafe certified] ≤ α |
@@ -111,7 +111,8 @@ flowchart LR
 
 Every decision carries a **guarantee status**: `VALID` (calibrated, components unchanged, no drift), `DEGRADED`
 (the drift monitor fired: the threshold may only tighten until you recalibrate) or `VOID` (no calibration, or the
-model, spec, rules, probes or agent changed since calibration: every check returns `ASK`).
+model, spec, rules, probes or agent changed since calibration: every check returns `ASK`, and the gate never
+certifies while VOID).
 
 ## What is guaranteed, and what is not
 
@@ -265,7 +266,7 @@ The accompanying paper is under submission; a link will be added here once it is
 
 ## Project status
 
-Release candidate `1.0.0rc5`. Implemented and tested (100+ tests including statistical validity tests,
+Release candidate `1.0.0rc6`. Implemented and tested (100+ tests including statistical validity tests,
 fuzzed fail-closed tests and framework contract tests): the core gate, both guarantee modes, high-probability and
 multi-risk calibration, weighted CRC, grouped calibration for dependent decisions, STL specifications, two-stage
 probing, drift monitoring with tighten-only adaptation, delayed outcomes and recalibration, signed artefacts, audit and
@@ -291,7 +292,7 @@ proof. Treat `VOID` and `DEGRADED` seriously, and keep catastrophic or irreversi
             for the Actions of LLM Agents},
   author = {Gupta, Saurabh},
   year   = {2026},
-  note   = {Under submission; software: riskgate 1.0.0rc5}
+  note   = {Under submission; software: riskgate 1.0.0rc6}
 }
 ```
 

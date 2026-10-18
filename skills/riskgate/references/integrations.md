@@ -2,9 +2,13 @@
 
 Verdict handling is the same everywhere:
 - **CERTIFY**: the tool runs.
-- **REJECT** and **PROBE**: the agent gets JSON feedback, `{"status": "rejected" | "probe_requested", "reason", "guarantee"[, "probe"]}`.
-- **ASK**: goes to a person.
+- **REJECT** and **PROBE**: the agent gets JSON feedback, `{"status": "rejected" | "probe_requested", "reason", "guarantee", "executed": false[, "probe"]}`.
+- **ASK**: goes to a person. If they say no, the agent gets `"status": "declined"` (do not retry). If nobody could be
+  asked, it gets `"status": "needs_approval"`.
 - **Context errors**: if building the context fails, the verdict is ASK (fail closed).
+- **What the agent sees:** the `reason` it receives never contains margins, the calibrated threshold or exception
+  details (`Decision.agent_reason`); the full `Decision.reason` stays in the audit log. Do not forward
+  `Decision.reason` or `Decision.threshold` to the model yourself.
 
 ## Any Python tool
 

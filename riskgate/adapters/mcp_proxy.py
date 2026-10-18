@@ -34,7 +34,7 @@ from typing import Any
 
 from ..types import Action, Decision, Verdict
 from .frameworks import _safe
-from .tool import _feedback
+from .tool import _agent_reason, _feedback
 
 __all__ = ["build_proxy_server", "main", "serve_stdio"]
 
@@ -65,10 +65,14 @@ async def _list_all_tools(upstream: Any, max_pages: int = 100) -> list:
     return tools
 
 
-def _decision_summary(d: Decision, approved_by: str | None = None) -> dict:
-    out = {"verdict": d.verdict.value, "reason": d.reason, "guarantee": d.status.value, "score": d.score,
-           "threshold": d.threshold, "calibration_id": d.calibration_id, "stage": d.stage,
+def _decision_summary(d: Decision, approved_by: str | None = None, *, expose_scores: bool = False) -> dict:
+    """JSON-safe summary for ``_meta``. Robust scores, the threshold and the full reason only for trusted clients
+    (``expose_scores=True``): a client may pass ``_meta`` on to the model."""
+    out: dict[str, Any] = {"verdict": d.verdict.value, "reason": _agent_reason(d), "guarantee": d.status.value,
+           "calibration_id": d.calibration_id, "stage": d.stage,
            "probe": d.probe.to_dict() if d.probe is not None else None}
+    if expose_scores:
+        out.update(reason=d.reason, score=d.score, threshold=d.threshold)
     if approved_by is not None:
         out["approved_by"] = approved_by
     return _safe(out)
@@ -78,7 +82,7 @@ def build_proxy_server(gate: Any, upstream_session: Any, *,
                        context: Callable[[], Any | Awaitable[Any]] = lambda: None, name: str = "riskgate-proxy",
                        on_ask: Callable[[Decision], bool | Awaitable[bool]] | None = None,
                        passthrough: Collection[str] = (), version: str = "",
-                       instructions: str | None = None) -> Any:
+                       instructions: str | None = None, expose_scores: bool = False) -> Any:
     """Return a low-level ``mcp.server.lowlevel.Server`` that gates ``tools/call`` before forwarding upstream.
 
     Args:
@@ -92,6 +96,8 @@ def build_proxy_server(gate: Any, upstream_session: Any, *,
         passthrough: tool names forwarded WITHOUT a gate check (explicit allow-list for harmless read-only
             tools). Everything else is gated; failures to build the context fail closed.
         version, instructions: advertised server metadata.
+        expose_scores: put robust scores, the calibrated threshold and the full reason into
+            ``_meta["riskgate/decision"]`` (trusted clients only: clients may show ``_meta`` to the model).
 
     Each call is checked as ``gate.check(Action(tool_name, arguments), context())`` at stage 1.
     """
@@ -101,12 +107,12 @@ def build_proxy_server(gate: Any, upstream_session: Any, *,
     output_schemas: dict[str, Any] = {}
     allow = frozenset(passthrough)
 
-    def blocked(d: Decision, tool_name: str) -> Any:
-        fb = _safe(_feedback(d))
+    def blocked(d: Decision, tool_name: str, declined: bool = False) -> Any:
+        fb = _safe(_feedback(d, declined=declined))
         has_schema = output_schemas.get(tool_name) is not None
         return types.CallToolResult(content=[types.TextContent(type="text", text=json.dumps(fb))], is_error=True,
                                     structured_content=None if has_schema else fb,
-                                    meta={DECISION_META_KEY: _decision_summary(d)})  # type: ignore[call-arg]  # pydantic alias of _meta
+                                    meta={DECISION_META_KEY: _decision_summary(d, expose_scores=expose_scores)})  # type: ignore[call-arg]  # pydantic alias of _meta
 
     async def forward(tool_name: str, arguments: dict, d: Decision | None, approved_by: str | None = None) -> Any:
         try:
@@ -120,7 +126,7 @@ def build_proxy_server(gate: Any, upstream_session: Any, *,
         meta = dict(result.meta or {})
         meta.pop(SERVER_INFO_META_KEY, None)       # the proxy stamps its own identity
         if d is not None:
-            meta[DECISION_META_KEY] = _decision_summary(d, approved_by=approved_by)
+            meta[DECISION_META_KEY] = _decision_summary(d, approved_by=approved_by, expose_scores=expose_scores)
         return result.model_copy(update={"meta": meta or None})
 
     async def on_list_tools(ctx: Any, params: Any) -> Any:
@@ -138,12 +144,15 @@ def build_proxy_server(gate: Any, upstream_session: Any, *,
             gate_context = await _maybe_await(context())
         except Exception as exc:  # noqa: BLE001 - rule R3: fail closed
             return blocked(Decision(Verdict.ASK, action, reason=f"fail-closed: could not build the gate context: "
-                                                                f"{type(exc).__name__}: {exc}"), tool_name)
+                                                                f"{type(exc).__name__}: {exc}",
+                                    agent_reason="fail-closed: the gate could not evaluate this action"), tool_name)
         d = gate.check(action, gate_context)
         if d.verdict is Verdict.CERTIFY:
             return await forward(tool_name, arguments, d)
-        if d.verdict is Verdict.ASK and on_ask is not None and await _maybe_await(on_ask(d)):
-            return await forward(tool_name, arguments, d, approved_by="human")
+        if d.verdict is Verdict.ASK and on_ask is not None:
+            if await _maybe_await(on_ask(d)):
+                return await forward(tool_name, arguments, d, approved_by="human")
+            return blocked(d, tool_name, declined=True)
         return blocked(d, tool_name)
 
     return Server(name, version=version, instructions=instructions,
@@ -154,7 +163,7 @@ async def serve_stdio(gate: Any, upstream_command: str, upstream_args: Sequence[
                       context: Callable[[], Any | Awaitable[Any]] = lambda: None,
                       env: dict[str, str] | None = None, cwd: str | Path | None = None,
                       name: str = "riskgate-proxy", on_ask: Callable[[Decision], bool | Awaitable[bool]] | None = None,
-                      passthrough: Collection[str] = ()) -> None:
+                      passthrough: Collection[str] = (), expose_scores: bool = False) -> None:
     """Serve the proxy on this process's stdin/stdout, launching the upstream server as a stdio subprocess.
 
     ``env`` is passed to the upstream process (the mcp SDK otherwise gives it only a minimal safe
@@ -169,7 +178,7 @@ async def serve_stdio(gate: Any, upstream_command: str, upstream_args: Sequence[
                                    cwd=str(cwd) if cwd is not None else None)
     async with Client(params) as upstream:
         server = build_proxy_server(gate, upstream, context=context, name=name, on_ask=on_ask,
-                                    passthrough=passthrough)
+                                    passthrough=passthrough, expose_scores=expose_scores)
         async with stdio_server() as (read, write):      # claims fd 1 first; only then swap sys.stdout
             with contextlib.redirect_stdout(sys.stderr):
                 await server.run(read, write, server.create_initialization_options())

@@ -6,6 +6,7 @@ import pytest
 
 import riskgate as rg
 from riskgate.adapters.frameworks import adk_before_tool_callback, langgraph_gate_node, route_after_gate
+from riskgate.adapters.tool import _feedback
 from riskgate.conformal import lambda_grid, policy_losses
 
 
@@ -51,6 +52,73 @@ def make_gate(**kw):
 
 
 # --------------------------------------------------------------------------- tests
+def test_void_artefact_never_certifies_without_require_calibration():
+    g = make_gate(alpha=0.1)
+    g.calibrate(episodes(4, 200))
+    g.audit = rg.MemoryAudit()
+    state, act = {"level": 50, "evidence": 0}, rg.Action("add", {"v": 20})
+    assert g.check(act, state).verdict is rg.Verdict.CERTIFY        # VALID: certifies
+    g.consequence.version = "tank-v2"                                # a component change -> VOID
+    g.require_calibration = False                                    # keep evaluating the stale artefact
+    d = g.check(act, state)
+    assert d.status is rg.GuaranteeStatus.VOID and d.verdict is rg.Verdict.ASK and d.probe is None
+    assert any(c.get("certified") for c in d.considered)             # the would-be verdict is still visible
+    assert d.would_verdict == "certify" and g.audit.records[-1]["would_verdict"] == "certify"
+    assert "threshold" not in _feedback(d)["reason"]
+    rej = g.check(rg.Action("add", {"v": 90}), state)                # REJECT is not loosened
+    assert rej.verdict is rg.Verdict.REJECT and rej.would_verdict is None
+    g.consequence.version = "tank-v1"
+    assert g.status() is rg.GuaranteeStatus.VALID and g.check(act, state).verdict is rg.Verdict.CERTIFY
+
+
+def test_void_artefact_never_probes_without_require_calibration():
+    g = make_gate(alpha=0.1, probes=[rg.Action("read_flowmeter", read_only=True)], noop=rg.Action("add", {"v": 0}),
+                  min_separation=0.5)
+    rng = np.random.default_rng(3)
+    assert g.calibrate([ambiguous_episode(rng) for _ in range(600)]).probing
+    ep = next(e for e in (ambiguous_episode(rng) for _ in range(300))
+              if g.check_ranked(e.candidates, e.context).verdict is rg.Verdict.PROBE)
+    g.hypotheses.version = "leak-v2"                                # a component change -> VOID
+    g.require_calibration = False
+    d = g.check_ranked(ep.candidates, ep.context)
+    assert d.status is rg.GuaranteeStatus.VOID and d.verdict is rg.Verdict.ASK and d.probe is None
+    assert d.would_verdict == "probe"
+
+
+def test_agent_feedback_hides_margin_and_threshold():
+    d = rg.Decision(rg.Verdict.ASK, rg.Action("add", {"v": 45}), -2.0, -1.763,
+                    reason="cannot certify: best robust margin -2.000 < threshold -1.763; worst case under hypothesis 'leak0'",
+                    agent_reason="cannot certify: not safe enough under every plausible explanation of the situation "
+                                 "(worst case: 'leak0')")
+    fb = _feedback(d)
+    assert "threshold" not in fb["reason"] and "-1.763" not in fb["reason"] and "leak0" in fb["reason"]
+    assert fb["executed"] is False and _feedback(d, declined=True)["status"] == "declined"
+
+
+def test_gate_sets_agent_reason_on_cannot_certify():
+    g = make_gate(alpha=0.1)
+    g.calibrate(episodes(4, 200))
+    asks = [d for v in range(-20, 95, 5) for level in (20, 50, 80) for ev in (0, 5, 10, 15, 20, 25)
+            if (d := g.check(rg.Action("add", {"v": float(v)}), {"level": level, "evidence": ev})).verdict
+            is rg.Verdict.ASK and d.margins]
+    assert asks, "widen the grid: no 'cannot certify' ASK found"
+    for d in asks:
+        assert "threshold" in d.reason                                  # the audit keeps the numbers
+        fb = _feedback(d)["reason"]
+        assert "threshold" not in fb and f"{d.threshold:.3f}" not in fb and f"{d.score:.3f}" not in fb
+
+
+def test_fail_closed_agent_text_hides_internals():
+    class Boom:
+        version = "boom"
+
+        def predict(self, *a):
+            raise RuntimeError("postgres://admin:secret@db/prod unreachable")
+    g = rg.Gate(Boom(), rg.Spec(rg.Envelope("level", 10, 100)), LeakHyps(), require_calibration=False)
+    d = g.check(rg.Action("add", {"v": 1}), {"level": 50, "evidence": 0})
+    assert d.verdict is rg.Verdict.ASK and "secret" in d.reason and "secret" not in _feedback(d)["reason"]
+
+
 def test_spec_margins_and_binding():
     spec = rg.Spec(rg.Upper("p95_ms", 500, scale=500), rg.Lower("level", 10, scale=10, name="min level"))
     m, b = spec.evaluate({"p95_ms": [200, 600], "level": 50})
@@ -159,7 +227,7 @@ def test_guard_decorator_sync_async_and_adapters():
 
     assert add(20) == "added 20"
     blocked = add(80)
-    assert isinstance(blocked, dict) and blocked["status"] in ("rejected", "needs_approval")
+    assert isinstance(blocked, dict) and blocked["status"] in ("rejected", "declined")
 
     @rg.guard(g, context=lambda: state, name="add")
     async def aadd(v: float) -> str:

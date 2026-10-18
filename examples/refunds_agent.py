@@ -2,6 +2,8 @@
 
 The consequence model is a genuine transactional dry-run: the proposed refund is executed inside a
 SAVEPOINT, invariants and policy are checked on the resulting state, and the savepoint is rolled back.
+(Safe here only because every ticket has its own in-memory SQLite copy. Never use a savepoint on a production
+database as a dry-run: see docs/operations.md, "Safe database dry-runs".)
 The database answers deterministic questions exactly (amount already refunded, delivery date,
 final-sale flag); what it cannot answer is *what the customer means* ("the headphones I bought last
 month") and whether a chargeback was filed at the bank but not yet synced by the payment webhook.
@@ -122,6 +124,8 @@ class DryRunDB:
 
     def dry_run(self, ctx: Context, action: rg.Action, true_order: str, true_sku: str, chargeback_open: bool) -> dict:
         """Execute the action inside a savepoint, evaluate policy under a hypothesis, roll back."""
+        # Safe here only because each ticket has its own in-memory SQLite copy (see conn()).
+        # Never use a savepoint on a production database as a dry-run: see docs/operations.md.
         c = self.conn(ctx)
         if action.name not in ("issue_refund", "issue_store_credit"):
             return {"excess_usd": 0.0, "violations": [], "observation": [0.0]}

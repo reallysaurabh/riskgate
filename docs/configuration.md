@@ -49,7 +49,7 @@ Every key except `gate` may also be nested **under `gate`**, as in the example o
 | `noop` | none | A tool name or a table `{name, args}`: the "do nothing" action for probe admissibility. |
 | `noop_tol`, `min_separation`, `min_resolved`, `ood_alpha` | `0.0`, `1.0`, `0.3`, `0.01` | Probe selection and OOD guard. |
 | `doer_id` | none | Doer identity, fingerprinted in policy mode. |
-| `require_calibration` | `true` | `false` gives shadow mode ([API](api.md#constructor-parameters)). |
+| `require_calibration` | `true` | `false` evaluates even when `VOID` (for analysis); it still never certifies or probes while `VOID` ([API](api.md#constructor-parameters)). |
 | `timeout_s`, `parallel` | none, `0` | Per-check time budget, and worker threads for models without `predict_batch`. |
 | `cache_size` | `0` | Needs a `context_key` override, otherwise `ValueError`. |
 

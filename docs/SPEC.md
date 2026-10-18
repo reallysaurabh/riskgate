@@ -33,7 +33,7 @@ for an operator-chosen $\alpha$, **regardless of how good the consequence model 
 Teams whose agents take **consequential actions in environments that can be simulated, dry-run or replayed**:
 - process plants and energy systems (digital twins);
 - infrastructure operations (`kubectl --dry-run`, `terraform plan`, capacity models);
-- transactional software (database savepoints, payment sandboxes);
+- transactional software (dry-runs on database clones, payment sandboxes);
 - robotics (physics simulators);
 - finance (backtests).
 
@@ -258,6 +258,7 @@ if stage == 1 and probing calibrated:
 if every viable action has max over P of M < 0: return REJECT(binding constraint)
 return ASK(worst-case hypothesis, best margin vs threshold)
 on any exception: ASK("fail-closed: ..."); on timeout: ASK("timeout: ...")
+if status == VOID and verdict in (CERTIFY, PROBE): verdict <- ASK   # only reachable with require_calibration=False
 afterwards: audit sink (failure -> CERTIFY downgraded to ASK), then monitor (stage-1 top score; CERTIFY registered)
 ```
 
@@ -465,7 +466,7 @@ Let episodes $Z_1,\dots,Z_{n+1}$ be exchangeable, where $Z_i$ = (context, ranked
 - **Artefact integrity.** HMAC-SHA256 signatures (`save(path, key)`, `load(..., key, require_signature=True)`); store artefacts read-only; keys come from the environment or a secret store, never from config files.
 - **Code changes void artefacts.** Rule and constraint logic are content-hashed into the fingerprint.
 - **PII in audit logs.** The context itself is not logged; use `redact` (or `[audit] redact = [...]`) for sensitive action arguments.
-- **Sandbox isolation.** Dry-runs must execute against isolated copies (savepoints, staging namespaces, read replicas), never against production state.
+- **Sandbox isolation.** Dry-runs must execute against isolated copies (database clones or branches, restored snapshots, staging namespaces) or as read-only rewrites, never against production state. A savepoint on the live database is not isolation ([Operations](operations.md#safe-database-dry-runs)).
 - **MCP proxy.** stdout is reserved for JSON-RPC while serving (prints are redirected to stderr).
 
 ---

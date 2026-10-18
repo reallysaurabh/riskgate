@@ -139,8 +139,22 @@ def test_ask_pauses_with_adk_tool_confirmation_then_resumes(toy_gate, state, con
     if confirmed:
         assert tank.executed == [ASKED] and final == {"status": "ok", "added": ASKED}
     else:
-        assert tank.executed == [] and final["status"] == "rejected" and "declined" in final["reason"]
+        assert tank.executed == [] and final["status"] == "declined" and "declined" in final["reason"]
     assert turn2[-1] == ("text", "done")
+
+
+def test_on_ask_decline_reports_declined(toy_gate, state):
+    async def scenario() -> tuple[Tank, list]:
+        tank = Tank()
+        llm = ScriptedLlm(model="scripted", script=[add_call(ASKED), "done"])
+        cb = adk_before_tool_callback(toy_gate, context=lambda: state, on_ask=lambda d: False)
+        agent = LlmAgent(name="tank_agent", model=llm, tools=[tank.tool()], before_tool_callback=cb)
+        runner, sid = await new_session(agent)
+        return tank, await run_turn(runner, sid, user("add 50 L"))
+
+    tank, items = asyncio.run(scenario())
+    (fb,) = responses(items)
+    assert tank.executed == [] and fb["status"] == "declined" and fb["executed"] is False
 
 
 def test_on_ask_hook_takes_precedence_over_confirmation(toy_gate, state):

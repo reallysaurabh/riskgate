@@ -58,12 +58,13 @@ async def _decide(gate: Any, tool_name: str, tool_input: Mapping[str, Any] | Non
         ctx = await _maybe_await(_call_context(context, ctx_arg))
     except Exception as exc:  # noqa: BLE001 - rule R3: fail closed
         return Decision(Verdict.ASK, action, reason=f"fail-closed: could not build the gate context: "
-                                                    f"{type(exc).__name__}: {exc}")
+                                                    f"{type(exc).__name__}: {exc}",
+                        agent_reason="fail-closed: the gate could not evaluate this action")
     return gate.check(action, ctx)
 
 
-def _reason(d: Decision) -> str:
-    return "riskgate: " + json.dumps(_safe(_feedback(d)))
+def _reason(d: Decision, declined: bool = False) -> str:
+    return "riskgate: " + json.dumps(_safe(_feedback(d, declined=declined)))
 
 
 def pretooluse_hook(gate: Any, *, context: Callable[..., Any] = lambda: None,
@@ -115,8 +116,10 @@ def can_use_tool(gate: Any, *, context: Callable[..., Any] = lambda: None, tools
         d = await _decide(gate, tool_name, tool_input, context, name, permission_context)
         if d.verdict is Verdict.CERTIFY:
             return PermissionResultAllow()
-        if d.verdict is Verdict.ASK and on_ask is not None and await _maybe_await(on_ask(d)):
-            return PermissionResultAllow()
+        if d.verdict is Verdict.ASK and on_ask is not None:
+            if await _maybe_await(on_ask(d)):
+                return PermissionResultAllow()
+            return PermissionResultDeny(message=_reason(d, declined=True))
         return PermissionResultDeny(message=_reason(d))
 
     callback.__riskgate__ = gate  # type: ignore[attr-defined]

@@ -109,7 +109,7 @@ Gate(consequence, spec, hypotheses=None, *, alpha=0.05, mode="policy", delta=0.0
 | `ood_alpha` | `0.01` | τ_ood, set by `calibrate()`, is the conformal (1 − `ood_alpha`) quantile of the best hypothesis score. |
 | `audit` | `None` | Sink with `write(decision)`, called for every decision ([`AuditLog`](#auditlog), [`MultiSink`](#multisink), [`OTelSink`](#riskgatetelemetryotelsink), ...). |
 | `monitor` | `None` | [`Monitor`](#monitor) for drift detection, the tighten-only online threshold and delayed outcomes. |
-| `require_calibration` | `True` | If the status is `VOID`, return `ASK` without evaluating anything. With `False` (shadow mode) the gate still evaluates. An uncalibrated gate then uses threshold +∞ and never certifies. A stale artefact is applied as is, and its decisions carry `status=VOID`. |
+| `require_calibration` | `True` | If the status is `VOID`, return `ASK` without evaluating anything. With `False` the gate still evaluates (margins, plausible set, reasons) for analysis, but while the status is `VOID` it **never returns `CERTIFY` or `PROBE`**: those become `ASK`, with the would-be verdict in `Decision.would_verdict` (and in the audit record). `REJECT` stays `REJECT`. An uncalibrated gate uses threshold +∞. For a shadow deployment, record decisions next to the humans without enforcing them; do not rely on this flag. |
 | `doer_id` | `None` | Identifier of the proposing agent (model, prompt version, temperature). Calibrating in policy mode without it emits `RiskGateWarning`. In policy mode it is part of the fingerprint, because the policy-mode guarantee only covers the calibrated doer. |
 | `timeout_s` | `None` | Wall-clock budget per check. If it is exceeded, the check returns `ASK` and `reason` starts with `timeout:`. |
 | `cache_size` | `0` | Size of an LRU cache of margin matrices, keyed by `(context_key(context), action keys, hypothesis names)`. `0` disables the cache. A positive value **requires** `context_key`, otherwise `ValueError`. |
@@ -143,7 +143,7 @@ gate.check_ranked(candidates, context, *, stage=1) -> Decision
 
 `check_ranked` receives the doer's proposals in rank order (first = preferred). It returns the **first** candidate that it can certify, or one of `REJECT`, `PROBE` or `ASK`:
 
-1. **Status.** If the status is `VOID` and `require_calibration=True`, return `ASK` (`guarantee void: ...`).
+1. **Status.** If the status is `VOID` and `require_calibration=True`, return `ASK` (`guarantee void: ...`). With `require_calibration=False` the steps below run, and a final check turns `CERTIFY` and `PROBE` into `ASK` while `VOID` (`guarantee void: would certify, ...`; `would_verdict` is set).
 2. **Hard rules**, candidate by candidate. If a REJECT rule fires, the candidate is skipped. If an ASK rule fires on the first remaining candidate, return `ASK`. If it fires on a lower-ranked candidate, that candidate is skipped: an action that needs approval is never certified automatically. If no candidate is left, return `REJECT` (`blocked by hard rules (...)`).
 3. **Hypotheses.** If the best hypothesis score is above τ_ood, return `ASK` (out of distribution). The plausible set is every hypothesis with score ≤ τ. If it is empty, return `ASK`.
 4. **Margins.** Compute `margin_matrix(viable, plausible)`. The robust score is the minimum over plausible hypotheses, or `score_fn`. NaN scores count as −∞, and +∞ is clipped to 1e300, so λ = +∞ never certifies anything.
@@ -379,6 +379,8 @@ Candidates without a label count as **unsafe**, which is conservative. Agnostic 
 | `considered` | `list[dict]` | Every candidate looked at, in rank order: `{"action", "score", "certified"}` or `{"action", "verdict", "rule"}`. |
 | `stage` | `int` | `1`, or `2` after a probe. |
 | `latency_ms` | `float` | Wall-clock time of the check. |
+| `agent_reason` | `str` | Numbers-free text the **agent** may see (no robust margins, no threshold, no exception internals). `""` means `reason` is safe to show as is. Adapters send `agent_reason or reason`; `reason` stays in audit records, `on_ask` and approver prompts. |
+| `would_verdict` | `str \| None` | Set when a `VOID` artefact (with `require_calibration=False`) turned `CERTIFY` or `PROBE` into `ASK`: the verdict it would have given. |
 | `decision_id` | `str` | Random 16-hex id. Pass it to `record_outcome`. |
 | `approved` | `bool` (property) | `verdict is Verdict.CERTIFY`. |
 | `to_dict()` | method | JSON-ready dict: enums as strings, actions as dicts (NaN and ±inf stay floats). |
@@ -390,13 +392,15 @@ Candidates without a label count as **unsafe**, which is conservative. Agnostic 
 | `REJECT` | `blocked by hard rules (...)` · `unsafe under every plausible hypothesis (binding constraint: <name>)` |
 | `ASK` | `guarantee void: ...` · `hard rule '<name>': <message>` · `evidence unlike anything seen in calibration (out of distribution)` · `no hypothesis explains the evidence` · `cannot certify: best robust margin ... < threshold ...` · `timeout: ...` · `fail-closed: <Exception>: ...` |
 
+Adapters never send the `cannot certify` numbers, or exception details, to the agent. They send `Decision.agent_reason` when it is set, for example `cannot certify: not safe enough under every plausible explanation of the situation (worst case: '<hypothesis>')`. The full `reason` stays in the audit log. A calibrated threshold and margins in front of a manipulated agent would show it how far to push.
+
 ```python
 d = gate.check(rg.Action("add", {"v": 45}), {"level": 50, "evidence": 1.0})
 print(d.verdict, d.approved, d.binding, "|", d.reason)
 # -> Verdict.CERTIFY True {'leak0': '10<=level<=100', 'leak10': '10<=level<=100'} | robust margin above calibrated threshold
 print(sorted(d.to_dict()))
-# -> ['action', 'binding', 'calibration_id', 'considered', 'decision_id', 'latency_ms', 'margins', 'plausible',
-#     'probe', 'reason', 'score', 'stage', 'status', 'threshold', 'top_score', 'verdict']
+# -> ['action', 'agent_reason', 'binding', 'calibration_id', 'considered', 'decision_id', 'latency_ms', 'margins',
+#     'plausible', 'probe', 'reason', 'score', 'stage', 'status', 'threshold', 'top_score', 'verdict', 'would_verdict']
 ```
 
 ### `Verdict` and `GuaranteeStatus`
@@ -692,9 +696,9 @@ guard(gate, *, context=lambda: None, name=None, on_ask=None, raise_on_reject=Fal
 | Verdict | Result |
 |---|---|
 | `CERTIFY` | The tool runs and its return value is returned. |
-| `ASK` + `on_ask` given | `on_ask(decision)` decides. `True` runs the tool. `False` returns `{"status": "needs_approval", "reason", "guarantee"}`. |
-| `ASK`, no `on_ask` | Raises `ApprovalRequired(decision)`. |
-| `REJECT` | Returns `{"status": "rejected", "reason", "guarantee"}`, or raises `ActionRejected(decision)` if `raise_on_reject=True`. |
+| `ASK` + `on_ask` given | `on_ask(decision)` decides. `True` runs the tool. `False` returns `{"status": "declined", "reason", "guarantee", "executed": false}`. |
+| `ASK`, no `on_ask` | Raises `ApprovalRequired(decision)`. With `raise_on_ask=False`, returns `{"status": "needs_approval", ...}`: nobody could be asked. |
+| `REJECT` | Returns `{"status": "rejected", "reason", "guarantee", "executed": false}`, or raises `ActionRejected(decision)` if `raise_on_reject=True`. |
 | `PROBE` | Returns `{"status": "probe_requested", "reason", "guarantee", "probe": {...}}`. |
 
 `feedback` formats the dict that is returned for blocked calls, for example `feedback=json.dumps` for frameworks that expect string tool results. The wrapper exposes the gate as `wrapper.__riskgate__`. For `async` tools the gate check runs synchronously inside the coroutine. `ActionRejected` and `ApprovalRequired` are `RuntimeError` subclasses that carry `.decision`.

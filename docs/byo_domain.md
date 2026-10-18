@@ -33,7 +33,7 @@ The consequence model answers: *if we execute this action and the world is in th
 - **Return outcomes the spec can read**: a mapping (or an object with attributes) whose values are scalars or trajectories (1-D arrays).
 - **Implement `predict_batch(actions, hypotheses, context)`** if you can vectorise. It returns a list per action of outcomes per hypothesis (`out[i][j]`). Without it, the gate calls `predict` for every pair, optionally in `parallel` threads.
 - **Probes** are read-only actions (`read_only=True`). Their outcome needs the spec's keys too (what happens to the system *while* the probe runs, usually the same as doing nothing), plus `observation`: a vector of what the probe would measure, **in noise units**. For example `log(value) / relative_noise`, or `value / sd`. Then `min_separation=2.0` means "the hypotheses' predicted readings are at least two noise standard deviations apart".
-- **No side effects, deterministic.** Dry-runs must hit isolated copies (savepoints, staging namespaces, read replicas). Exceptions are fine: the check fails closed (`ASK`). NaN outputs count as violations.
+- **No side effects, deterministic.** Dry-runs must hit isolated copies (database clones or branches, restored snapshots, staging namespaces) or be read-only rewrites. A savepoint on the live database is not isolation; see [Safe database dry-runs](operations.md#safe-database-dry-runs). Exceptions are fine: the check fails closed (`ASK`). NaN outputs count as violations.
 
 ```python
 import math

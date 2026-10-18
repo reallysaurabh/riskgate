@@ -67,7 +67,8 @@ class _FailClosedGate:
     def check(self, action: Action, context: Any, *, stage: int = 1) -> Decision:
         if isinstance(context, _ContextError):
             return Decision(Verdict.ASK, action, reason=f"fail-closed: could not build the gate context: "
-                                                        f"{type(context.exc).__name__}: {context.exc}")
+                                                        f"{type(context.exc).__name__}: {context.exc}",
+                            agent_reason="fail-closed: the gate could not evaluate this action")
         return self.gate.check(action, context, stage=stage)
 
 
@@ -84,8 +85,9 @@ def guarded_function_tool(gate: Any, fn: Callable[..., Any], *, context: Callabl
             ``riskgate_tool_input_guardrail`` instead.
         context: zero-argument callable returning the gate context (state snapshot) at call time. If it
             raises, the call fails closed (ASK feedback, ``fn`` does not run).
-        on_ask: optional synchronous approval hook for ASK (True runs ``fn``). Without it, ASK returns
-            ``{"status": "needs_approval", ...}`` to the model instead of raising.
+        on_ask: optional synchronous approval hook for ASK (True runs ``fn``; False returns
+            ``{"status": "declined", ...}``). Without it, ASK returns ``{"status": "needs_approval", ...}`` to the
+            model instead of raising.
         name: tool name (default ``fn.__name__``); also the ``Action`` name seen by the gate.
         **function_tool_kwargs: forwarded to ``agents.function_tool`` (e.g. ``description_override``,
             ``tool_input_guardrails``, ``timeout``).
@@ -103,8 +105,8 @@ def guarded_function_tool(gate: Any, fn: Callable[..., Any], *, context: Callabl
         except Exception as exc:  # noqa: BLE001 - rule R3: fail closed
             return _ContextError(exc)
 
-    guarded = guard(_FailClosedGate(gate), context=safe_context, name=tool_name,
-                    on_ask=on_ask if on_ask is not None else (lambda d: False))(fn)
+    guarded = guard(_FailClosedGate(gate), context=safe_context, name=tool_name, on_ask=on_ask,
+                    raise_on_ask=False)(fn)
     return function_tool(guarded, name_override=tool_name, **function_tool_kwargs)
 
 

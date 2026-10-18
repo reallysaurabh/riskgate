@@ -114,7 +114,7 @@ def cmd_serve_mcp(a: argparse.Namespace) -> int:  # pragma: no cover - needs the
         return 1
     passthrough = [t for t in (a.passthrough or "").split(",") if t]
     anyio.run(lambda: serve_stdio(gate, a.upstream[0], a.upstream[1:], context=ctx, name=a.name,
-                                  passthrough=passthrough))
+                                  passthrough=passthrough, expose_scores=a.expose_scores))
     return 0
 
 
@@ -149,6 +149,8 @@ def build_parser() -> argparse.ArgumentParser:
     m.add_argument("--key", default=os.environ.get("RISKGATE_KEY"))
     m.add_argument("--name", default="riskgate-proxy", help="server name announced to MCP clients")
     m.add_argument("--passthrough", default="", help="comma-separated read-only tools forwarded without gating")
+    m.add_argument("--expose-scores", action="store_true",
+                   help="put robust scores and the threshold into _meta (trusted clients only)")
     m.add_argument("upstream", nargs=argparse.REMAINDER)
     return p
 

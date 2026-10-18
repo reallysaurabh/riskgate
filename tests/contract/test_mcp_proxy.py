@@ -86,6 +86,17 @@ def test_on_ask_async_hook_can_approve(toy_gate, state):
     assert not res.is_error and executed == [ASKED] and seen[0].verdict is rg.Verdict.ASK
 
 
+def test_on_ask_decline_reports_declined_and_never_forwards(toy_gate, state):
+    async def scenario(client: Client) -> Any:
+        return await client.call_tool("add", {"v": ASKED})
+
+    res, executed = anyio.run(lambda: with_proxy(toy_gate, scenario, context=lambda: state, on_ask=lambda d: False))
+    fb = json.loads(text(res))
+    assert res.is_error and executed == [] and fb["status"] == "declined" and fb["executed"] is False
+    meta = res.meta["riskgate/decision"]
+    assert "threshold" not in meta and "score" not in meta                 # scores are opt-in (expose_scores)
+
+
 def test_async_context_passthrough_and_probe(state):
     gate = StubGate(rg.Verdict.PROBE, probe=rg.Action("read_level", read_only=True))
 

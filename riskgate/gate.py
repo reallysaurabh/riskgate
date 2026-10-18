@@ -492,7 +492,14 @@ class Gate:
                 except FutureTimeout:
                     d = Decision(Verdict.ASK, first, reason=f"timeout: no decision within {self.timeout_s:g}s")
         except Exception as exc:  # noqa: BLE001 - rule R3: fail closed
-            d = Decision(Verdict.ASK, first, reason=f"fail-closed: {type(exc).__name__}: {exc}")
+            d = Decision(Verdict.ASK, first, reason=f"fail-closed: {type(exc).__name__}: {exc}",
+                         agent_reason="fail-closed: the gate could not evaluate this action")
+        if status is GuaranteeStatus.VOID and d.verdict in (Verdict.CERTIFY, Verdict.PROBE):
+            # Reachable only with require_calibration=False and a stale artefact: evaluate, never act (rule R3).
+            d.would_verdict = d.verdict.value
+            d.reason = f"guarantee void: would {d.verdict.value}, but the artefact does not match this gate ({d.reason})"
+            d.agent_reason = "cannot certify: the gate's calibration does not match its current configuration"
+            d.verdict, d.probe = Verdict.ASK, None
         return self._finish(d, t0, status, stage)
 
     def _screen(self, candidates: Sequence[Action], context: Any) -> tuple[list[Action], list[dict], Decision | None]:
@@ -573,7 +580,9 @@ class Gate:
         else:
             worst_h = names[int(np.argmin(m[top]))]
             base.reason = (f"cannot certify: best robust margin {robust.max():.3f} < threshold {lam:.3f}; "
-                           f"worst case under hypothesis '{worst_h}'")
+                           f"worst case under hypothesis '{worst_h}'")          # audit and approvers only
+            base.agent_reason = ("cannot certify: not safe enough under every plausible explanation of the "
+                                 f"situation (worst case: '{worst_h}')")
         return base
 
     def _finish(self, d: Decision, t0: float, status: GuaranteeStatus, stage: int) -> Decision:
@@ -588,6 +597,7 @@ class Gate:
                 if d.verdict is Verdict.CERTIFY:
                     d.verdict = Verdict.ASK
                     d.reason = f"fail-closed: audit sink error ({type(exc).__name__}: {exc}); decision not recorded"
+                    d.agent_reason = "fail-closed: the decision could not be recorded"
         if self.monitor is not None and status is not GuaranteeStatus.VOID:
             try:
                 # the drift statistic must match the calibration reference: best robust score at stage 1

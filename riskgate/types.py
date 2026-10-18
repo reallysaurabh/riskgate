@@ -191,6 +191,8 @@ class Decision:
     latency_ms: float = 0.0
     decision_id: str = field(default_factory=lambda: uuid.uuid4().hex[:16])
     top_score: float = float("nan")          # best robust score among viable candidates (drift-monitor statistic)
+    agent_reason: str = ""                   # numbers-free text the agent may see; "" means `reason` is safe as is
+    would_verdict: str | None = None         # set when a VOID artefact turned CERTIFY/PROBE into ASK (audit only)
 
     @property
     def approved(self) -> bool:

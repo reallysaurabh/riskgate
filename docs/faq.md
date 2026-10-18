@@ -26,7 +26,7 @@ The gate's fingerprint changes and the status becomes `VOID`. Every check return
 By default (conformal risk control) on average over calibration sets: one particular calibrated gate can be above α, by more when many candidates share almost the same score near the threshold (see the reactor example in [Results](results.md)). Use `guarantee="high_probability"` to get P(risk ≤ α) ≥ 1 − δ for the artefact you deploy, at the cost of more `ASK`s when the evidence is thin.
 
 **How do I get labels without a simulator?**
-- Sandbox replays: staging namespaces, database savepoints, payment test modes.
+- Sandbox replays: staging namespaces, database clones, payment test modes (never a savepoint on the live database: see [Operations](operations.md#safe-database-dry-runs)).
 - Audited production outcomes, using policy mode.
 - Expert labelling of proposed alternatives.
 

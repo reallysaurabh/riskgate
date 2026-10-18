@@ -28,9 +28,19 @@ imports no framework, so the core keeps its numpy-only dependency footprint.
 | PROBE | `{"status":"probe_requested","probe":{...}}` | dict incl. `probe` | `ToolMessage` incl. `probe` | as REJECT, incl. `probe` | `isError=true`, JSON incl. `probe` |
 | ASK | `on_ask(decision)`; else `ApprovalRequired` | `on_ask`, else ADK tool confirmation (`request_confirmation`), else dict | `interrupt()` → `Command(resume=...)`, or `on_ask`, else `ToolMessage` | `on_ask` (`guard`), or `needs_approval` → SDK interruption → approved call allowed by the guardrail | `on_ask` (sync/async) forwards, else `isError=true` |
 
-The feedback object is always `_feedback(decision)`: `{"status": "rejected" | "needs_approval" |
-"probe_requested", "reason": str, "guarantee": "valid" | "degraded" | "void"[, "probe": {"name", "args",
-"read_only"}]}`. Adapters that produce text (LangGraph, OpenAI guardrail, MCP) serialise it as JSON.
+The feedback object is always `_feedback(decision)`: `{"status": "rejected" | "needs_approval" | "declined" |
+"probe_requested", "reason": str, "guarantee": "valid" | "degraded" | "void", "executed": false[, "probe":
+{"name", "args", "read_only"}]}`. Adapters that produce text (LangGraph, OpenAI guardrail, MCP, Claude Agent SDK)
+serialise it as JSON.
+
+- **`needs_approval`**: an ASK that nobody could be asked about in-band (no `on_ask`, no interrupt, no
+  confirmation), or an ADK confirmation that is still pending.
+- **`declined`**: a human (interrupt, ADK confirmation) or the `on_ask` hook said no. The agent should not wait
+  or retry.
+- **`reason`** is the agent-safe text (`Decision.agent_reason` when set). It never contains robust margins, the
+  calibrated threshold or exception details; those stay in the audit log, `on_ask` and approver payloads. The MCP
+  proxy's `_meta["riskgate/decision"]` follows the same rule unless `expose_scores=True` (CLI:
+  `--expose-scores`) is set for a trusted client.
 
 **Fail closed everywhere.** If the user's context function raises, every adapter returns an ASK decision with
 reason `fail-closed: could not build the gate context: ...` instead of running the tool (verified for all four
@@ -66,7 +76,8 @@ Verified facts about the installed ADK:
   `payload={"riskgate": feedback}`). When the client replies with
   `FunctionResponse(name="adk_request_confirmation", id=<call id>, response={"confirmed": true})`, ADK re-runs
   the original call with `tool_context.tool_confirmation` set; the gate re-checks and the tool runs. With
-  `{"confirmed": false}` the model receives `{"status": "rejected", "reason": "declined by the user: ..."}`.
+  `{"confirmed": false}` the model receives `{"status": "declined", "reason": "declined by a human reviewer: ..."}`
+  (before 1.0.0rc6: `"rejected"`).
 - `passthrough={"transfer_to_agent", ...}` exempts tool names from the gate (plugins see ADK-internal tools
   such as agent transfers too; the default is to gate everything).
 

@@ -4,7 +4,7 @@ description: Gate an AI agent's risky tool calls (refunds, payments, deletes, sc
 license: Apache-2.0
 compatibility: Python 3.10+ and network access to install the riskgate package from PyPI (pip install --pre riskgate).
 metadata:
-  version: "1.0.0rc5"
+  version: "1.0.0rc6"
   repository: https://github.com/reallysaurabh/riskgate
 ---
 
@@ -58,6 +58,9 @@ money, change infrastructure, delete data or label people. If they only have **t
 - **Set `doer_id`** (model + prompt version) in policy mode. A different agent needs recalibration; riskgate marks the old calibration VOID.
 - **Do not weaken fail-closed behaviour.**
   - Don't catch `ApprovalRequired` and run the tool anyway.
+  - Don't show the agent `Decision.reason`, `score` or `threshold`: adapters send the numbers-free `agent_reason`.
+  - `require_calibration=False` is for analysis, not shadow mode: it never certifies while the status is VOID.
+  - Dry-runs need an isolated copy (a database clone, branch or snapshot), never a savepoint on a production database.
   - Don't turn ASK into CERTIFY.
   - Don't raise alpha just to get autonomy without telling the user.
 - **Explain what is not guaranteed.**

@@ -62,7 +62,7 @@ The guarantee holds for decision points that are **exchangeable** with the calib
 | Source | Labels available for | Usable modes | Watch out for |
 |---|---|---|---|
 | **High-fidelity simulator / digital twin** (randomised parameters, noise) | every candidate (counterfactual) | agnostic, policy | Sim-to-real gap: the bound holds for the simulated distribution. Never use the gate's own consequence model as the source of truth. |
-| **Sandbox replay** (staging namespace, DB savepoint, payment test mode, `kubectl --dry-run=server`, `terraform plan`) | every candidate | agnostic, policy | Replay the context *as it was at decision time*. The sandbox must be isolated from production. |
+| **Sandbox replay** (staging namespace, database clone, payment test mode, `kubectl --dry-run=server`, `terraform plan`) | every candidate | agnostic, policy | Replay the context *as it was at decision time*. The sandbox must be isolated from production. |
 | **Staging and canary experiments** | executed actions, plus a few alternatives | policy | Small samples, and situations that are easier than production. |
 | **Labelled postmortems and audited production logs** | executed actions only | policy | Selection bias (only some incidents get postmortems), uneven label quality. Unlabelled alternatives count as unsafe, which raises the ask rate. |
 | **Expert review of proposals** | any candidate a reviewer labels | agnostic, policy | Cost, agreement between reviewers, and labels that must follow the spec's definition of unsafe. |
@@ -74,6 +74,29 @@ Requirements, whatever the source:
 - **Labels follow the spec.** "Unsafe" must mean "the spec was (or would have been) violated", over the same horizon the spec evaluates.
 - **Enough of them.** At least ⌈1/α⌉ risk-control episodes (enforced). Aim for 10/α or more, plus about 30% more for the τ split. Two-stage probing also needs split B to hold at least ⌈1/((1 − `probe_share`)·α)⌉ episodes ([details](api.md#gatecalibrate)).
 - **A manifest.** Store the data window, the dataset hash, the doer and component versions and the label source next to the artefact. The artefact itself records only the fingerprint, the thresholds and the diagnostics.
+
+### Safe database dry-runs
+
+> [!WARNING]
+> **A savepoint is not a sandbox.** Running the agent's statement on the live database and then rolling back has
+> side effects:
+>
+> - **MySQL, MariaDB and Oracle commit DDL implicitly**, together with the work before it in the transaction. A
+>   "dry-run" `DROP TABLE` or `ALTER TABLE` really happens.
+> - **PostgreSQL** rolls DDL back. But a rolled-back mass `UPDATE` / `DELETE` still holds row locks while it runs
+>   and writes WAL, which can stall other writers and replication. Sequence increments and calls through `dblink`
+>   or foreign-data wrappers are not undone.
+> - **`EXPLAIN ANALYZE` executes the statement.** Plain `EXPLAIN` does not.
+
+Prefer, in order:
+
+1. a **clone, branch or restored snapshot** of the database;
+2. a **read-only rewrite** on a replica or with a read-only role, e.g. `SELECT count(*) FROM t WHERE <same predicate>`;
+3. only if neither is possible, and only on PostgreSQL: a transaction with `SET LOCAL lock_timeout` and
+   `SET LOCAL statement_timeout`, a role that cannot run DDL, and an unconditional `ROLLBACK`.
+
+The refunds example (`examples/refunds_agent.py`) uses a savepoint safely only because every ticket gets its own
+in-memory SQLite copy.
 
 ## Artefacts: signing and storage
 
@@ -111,7 +134,7 @@ Every `Decision` carries `status`, the guarantee status at the time of the check
 |---|---|---|---|
 | `VALID` | Calibrated, fingerprints match, no drift alarm. | Normal operation. A `CERTIFY` is covered by the calibrated bound (marginally over episodes). | Watch the dashboards and report outcomes. |
 | `DEGRADED` | The drift monitor's martingale crossed `alarm_level`. The alarm is latched. | Still certifies, but only with `max(λ̂, λ_online)`: online adaptation can only tighten. **The formal bound no longer applies.** | Alert the owner. Investigate the shift (traffic mix, model drift, doer change, sensor faults). Decide whether to keep running tightened, route every action to a human, or roll back. Collect fresh labelled episodes from the new regime and [recalibrate](#recalibration-workflow). Call `monitor.reset()` only after a documented decision that the alarm was spurious. |
-| `VOID` | No artefact loaded, or a component changed since calibration (fingerprint mismatch). | Every check returns `ASK` (with the default `require_calibration=True`). | Expected right after deploying a changed component. Recalibrate with episodes produced by the new components, or roll the component back. `riskgate validate` in CI keeps VOID builds out of production. |
+| `VOID` | No artefact loaded, or a component changed since calibration (fingerprint mismatch). | Every check returns `ASK`. With `require_calibration=False` the gate still evaluates and may `REJECT`, but never `CERTIFY` or `PROBE` (the would-be verdict is kept in `would_verdict`). | Expected right after deploying a changed component. Recalibrate with episodes produced by the new components, or roll the component back. `riskgate validate` in CI keeps VOID builds out of production. |
 
 A stricter execution policy runs certified actions autonomously only while the status is `VALID`:
 
@@ -358,6 +381,6 @@ The gate's own overhead is small: about 0.3 ms per check in the toy example ([CL
 - [ ] Monitor attached, `alarm_level` chosen, alerts on `DEGRADED` and `VOID`, and a runbook for each status.
 - [ ] Outcomes wired: `decision_id` persisted, and `record_outcome` called when labels arrive.
 - [ ] Audit log in append-only storage, redaction reviewed, retention set. Telemetry is best effort.
-- [ ] Dry-runs isolated from production (savepoints, staging namespaces, read replicas).
+- [ ] Dry-runs isolated from production (clones, branches or snapshots, staging namespaces; no savepoints on the live database: see [Safe database dry-runs](#safe-database-dry-runs)).
 - [ ] Recalibration plan: owner, data source, cadence, rollback artefact.
 - [ ] Everyone knows what is **not** guaranteed: per-situation (conditional) risk, validity under shift, multi-step closed-loop behaviour, and wrong labels ([Calibration & guarantees](calibration.md)).
