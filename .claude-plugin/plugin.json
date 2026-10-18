@@ -1,7 +1,7 @@
 {
   "name": "riskgate",
   "displayName": "riskgate",
-  "version": "1.0.0-rc6",
+  "version": "1.0.0-rc7",
   "description": "Skills to gate risky agent tool calls with riskgate (certify, reject, probe or ask) and to build a calibrated gate from agent traces plus outcome labels.",
   "author": {"name": "Saurabh Gupta", "url": "https://github.com/reallysaurabh"},
   "homepage": "https://github.com/reallysaurabh/riskgate",

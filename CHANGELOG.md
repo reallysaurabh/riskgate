@@ -5,6 +5,10 @@ The calibration artefact schema is versioned separately (`riskgate.calibration/v
 
 ## [Unreleased]
 
+## [1.0.0rc7] — 2026-10-18 (release candidate)
+
+Documentation-only release: no code changes since 1.0.0rc6.
+
 ### Documentation
 - Documentation site: https://reallysaurabh.github.io/riskgate/ (MkDocs Material on GitHub Pages, rebuilt on every push to `main` by `.github/workflows/docs.yml`). PyPI's *Documentation* link points there.
 - Fixed 17 lists across 8 pages that rendered as run-on text on the site.
